@@ -1,0 +1,40 @@
+<%- include('../includes/head.ejs')%>
+
+    <!-- Sign In Start -->
+    <div class="container-fluid">
+        <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
+            <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                <div class="bg-secondary rounded p-4 p-sm-5 my-4 mx-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <a href="index.html" class="">
+                            <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>DarkPan</h3>
+                        </a>
+                        <h3>Điểm Danh</h3>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <!-- <input type="text" class="form-control" id="username">
+                        <label for="username">Họ Tên</label> -->
+                        <h3>
+                            <%= name%>
+                        </h3>
+                    </div>
+                    <!-- <div class="form-floating"> -->
+                    <form action="/user/start-time" method="POST">
+                        <label>Nơi làm việc</label>
+                        <select class="form-select form-select-sm mb-3" name="workplace" aria-label=".form-select-sm example">
+                            <option selected value="CT">Công ty</option>
+                            <option value="KH">Khách hàng</option>
+                            <option value="N">Nhà</option>       
+                    </select>
+                        <div class="d-flex justify-content-end align-items-center">
+                            <button type="submit" class="btn btn-success mx-2 w-40 mb-4">Bắt đầu</button>
+                            <a href="/user/time-recording" class="btn btn-primary w-40 mb-4">Thoát</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Sign In End -->
+
+    <%- include('../includes/end.ejs')%>s

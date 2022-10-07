@@ -1,0 +1,81 @@
+<%- include('../includes/head.ejs')%>
+    <%- include('../includes/sidebar.ejs')%>
+        <%- include('../includes/navbar.ejs')%>
+            <!-- Content -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
+                    <%if(TimeRecording.isWorking){%>
+                        <!-- Bat dau lam viec -->
+                        <div class="col-sm-6 col-xl-12 p-4">
+                            <div class="bg-dark rounded d-flex align-items-center justify-content-between p-4">
+                                <div class="ms-3">
+                                    <i class="fa fa-signal fa-2x text-success"></i> Đang làm việc
+                                </div>
+                                <div class="ms-3">
+                                    <%=startTime%>
+                                </div>
+                                <div class="ms-3">
+                                    <form action="/user/end-time" method="POST">
+                                        <button class="btn btn-danger"> Kết thúc </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <%}else{%>
+                            <!-- Ket thuc lam viec -->
+                            <div class="col-sm-6 col-xl-12 p-4">
+                                <div class="bg-dark rounded d-flex align-items-center justify-content-between p-4">
+                                    <div class="ms-3">
+                                        <i class="fa fa-power-off fa-2x text-primary"></i> Không làm việc
+                                    </div>
+                                    <div class="ms-3">
+                                        <a href="/user/start-time" class="btn btn-success">Bắt đầu</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <%}%>
+
+                                <!-- Table Danh sách điểm danh -->
+                                <h6 class="mb-4">Danh sách các lần điểm danh</h6>
+                                <div class="table-responsive">
+                                    <%if(listInDay.length>0){%>
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Nơi làm việc</th>
+                                                    <th scope="col">Thời gian bắt đầu</th>
+                                                    <th scope="col">Thời gian kết thúc</th>
+                                                    <th scope="col">Thời gian</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%listInDay.forEach((value, index) => {%>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <%=index%>
+                                                        </th>
+                                                        <td>
+                                                            <%=value.workplace%>
+                                                        </td>
+                                                        <td>
+                                                            <%=moment(value.startTime).format('HH:mm - DD/MM/YYYY')%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.endTime?moment(value.endTime).format('HH:mm - DD/MM/YYYY'):''%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.workHours? value.workHours + ' phút': '' %>
+                                                        </td>
+                                                    </tr>
+                                                    <%})%>
+                                                        <%}%>
+                                            </tbody>
+                                        </table>
+
+                                </div>
+                </div>
+            </div>
+            <!-- End Content -->
+            <%- include('../includes/footer.ejs')%>
+                <%- include('../includes/end.ejs')%>

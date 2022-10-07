@@ -1,0 +1,195 @@
+<%- include('../includes/head.ejs')%>
+    <%- include('../includes/sidebar.ejs')%>
+        <%- include('../includes/navbar.ejs')%>
+            <!-- Content -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
+
+                    <!-- Bat dau lam viec -->
+                    <div class="col-sm-6 col-xl-12 p-4">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <h6 class="mb-4">Tổng Tháng &amp; Tìm kiếm</h6>
+                            <nav>
+                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Tổng tháng</button>
+                                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Tìm kiếm</button>
+                                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</button>
+                                </div>
+                            </nav>
+                            <div class="tab-content pt-3" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                                    <ul>
+                                        <li>Tổng thời gian làm trong tháng (Kể cả nghỉ phép):
+                                            <%=info.totalTimeInMonth%>
+                                        </li>
+                                        <li>Tổng thời gian tăng ca trong tháng:
+                                            <%=info.totalUpTimeInMonth%>
+                                        </li>
+                                        <li>Tổng thời gian làm thiếu trong tháng:
+                                            <%=info.totalMissHour%>
+                                        </li>
+                                        <li>Lương tháng hoặc tạm tính:
+                                            <%=info.salaryMonth%>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                    <div class="col-sm-12 col-xl-12">
+                                        <div class="bg-secondary rounded h-100 p-4">
+                                            <form id="frm_search">
+                                                <div class="row mb-3">
+                                                    <label for="fromDay" class="col-sm-1 col-form-label">Từ</label>
+                                                    <div class="col-sm-5">
+                                                        <input type="date" value="<%=moment().startOf('month').format('YYYY-MM-DD')%>" class="form-control" id="fromDay" name="fromDay">
+                                                    </div>
+
+                                                    <label for="endDay" class="col-sm-1 col-form-label">Đến</label>
+                                                    <div class="col-sm-5">
+                                                        <input type="date" value="<%=moment().format('YYYY-MM-DD')%>" name="endDay" class="form-control" id="endDay">
+                                                    </div>
+                                                </div>
+
+                                                <hr>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-sm-6">
+                                                        <h6>Tùy chọn</h6>
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" name="ckb_missHour" type="checkbox" id="ckb_missHour">
+                                                                <label class="form-check-label" for="ckb_missHour">
+                                                                Thiều giờ
+                                                            </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="ckb_upHour" id="ckb_upHour">
+                                                                <label class="form-check-label" for="ckb_upHour">
+                                                                Tăng ca
+                                                            </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="ckb_annual" id="ckb_annual">
+                                                                <label class="form-check-label" for="ckb_annual">
+                                                                Ngày nghỉ
+                                                            </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-sm-6">
+                                                        <h6>Nơi làm việc</h6>
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="ckb_company" id="ckb_company">
+                                                                <label class="form-check-label" for="ckb_company">
+                                                                        Công ty
+                                                                    </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="ckb_home" id="ckb_home">
+                                                                <label class="form-check-label" for="ckb_home">
+                                                                        Tại nhà
+                                                                    </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-12">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="ckb_customer" id="ckb_customer">
+                                                                <label class="form-check-label" for="ckb_customer">
+                                                                        Khách hàng
+                                                                    </label>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <hr>
+
+                                                </div>
+                                                <button type="submit" id="btn_search" class="btn btn-primary">Tìm</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                                    Sit consetetur eirmod lorem ea magna sadipscing ipsum elitr invidunt, dolores lorem erat ipsum ut aliquyam eos lorem sed. Nonumy aliquyam ea justo eos dolores dolores duo dolores. Aliquyam dolor sea dolores sit takimata no erat vero. At lorem justo tempor
+                                    lorem duo, stet kasd aliquyam ipsum voluptua labore at.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Danh sách điểm danh -->
+                    <h6 class="mb-4">Danh sách các lần điểm danh</h6>
+                    <div class="table-responsive">
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Nơi làm việc</th>
+                                    <th scope="col">Thời gian bắt đầu</th>
+                                    <th scope="col">Thời gian kết thúc</th>
+                                    <th scope="col">Thời gian đã làm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%info.table.forEach((value) => {%>
+                                    <tr class="bg-dark text-info">
+                                        <th scope="row" colspan="5">
+                                            Ngày
+                                            <%=moment(value.dayofMonth).format('DD-MM-YYYY')%>
+                                        </th>
+                                    </tr>
+                                    <%value.lstRecording.forEach((time, index) => {%>
+                                        <tr>
+                                            <th scope="row">
+                                                <%=index+1%>
+                                            </th>
+                                            <td scope="col">
+                                                <%=time.workplace%>
+                                            </td>
+                                            <td scope="col">
+                                                <%=moment(time.startTime).format('HH:mm')%>
+                                            </td>
+                                            <td scope="col">
+                                                <%=time.endTime? moment(time.endTime).format('HH:mm'): 'Chưa kết thúc'%>
+                                            </td>
+                                            <td scope="col">
+                                                <%=time.workHours>=0?time.workHours:'Chưa kết thúc'%>
+                                            </td>
+                                        </tr>
+                                        <%})%>
+
+                                            <tr>
+                                                <th colspan="5" scope="row">
+                                                    <div class="d-flex justify-content-end">
+                                                        <span>  Tổng số giờ làm của ngày:
+                                                            <%=value.totalTime===-1? 'Chưa kết thúc': value.totalTime%></span>
+                                                        <span class="mx-3">   Số giờ tăng ca:
+                                                                <%=value.upTime%></span>
+                                                        <span>Số giờ làm thiếu:
+                                                                    <%=value.missHour%></span>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <%})%>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- End Content -->
+            <%- include('../includes/footer.ejs')%>
+                <%- include('../includes/end.ejs')%>

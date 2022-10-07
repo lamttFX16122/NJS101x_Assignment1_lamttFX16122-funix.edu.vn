@@ -1,0 +1,13 @@
+{
+    "_id": {
+        "$oid": "63354c2d0b8d2c0c3a5e22e2"
+    },
+    "name": "Thanh La,",
+    "email": "max@test.com",
+    "doB": "30/07/1996",
+    "salaryScale": "5",
+    "startDate": "10/09/2022",
+    "department": "Dev",
+    "annualLeave": 12,
+    "image": ""
+}

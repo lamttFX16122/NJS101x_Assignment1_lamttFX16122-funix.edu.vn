@@ -1,0 +1,46 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h5 class="mb-4">Thêm Nhân Viên</h5>
+                <form action="" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Họ và Tên</label>
+                        <input type="text" class="form-control" id="username" name="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="doB" class="form-label">Ngày sinh</label>
+                        <input type="date" class="form-control" id="doB" name="doB">
+                    </div>
+                    <div class="mb-3">
+                        <label for="salaryScale" class="form-label">Mức lương</label>
+                        <input type="text" class="form-control" id="salaryScale" name="salaryScale">
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phòng ban</label>
+                        <select class="form-select mb-3" name="department" aria-label="Default select example">
+                                <option selected="NS">Nhân sự</option>
+                                <option value="KD">Kinh doanh</option>
+                                <option value="IT">IT</option>
+                                <option value="KT">Kỹ thuật</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="annualLeave" class="form-label">Mức lương</label>
+                        <input type="number" class="form-control" id="annualLeave" name="annualLeave">
+                    </div>
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">Hình ảnh</label>
+                        <input type="text" class="form-control" id="imageUrl" name="imageUrl">
+                    </div>
+                    <!-- ------------ -->
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

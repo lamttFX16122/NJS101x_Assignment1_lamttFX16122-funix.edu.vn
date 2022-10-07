@@ -1,0 +1,89 @@
+<%- include('../includes/head.ejs')%>
+    <%- include('../includes/sidebar.ejs')%>
+        <%- include('../includes/navbar.ejs')%>
+            <!-- Content -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
+
+                    <!-- Đăng ký nghỉ -->
+                    <form action="/user/annualLeave" method="POST">
+                        <div class="col-sm-6 col-xl-12 p-4">
+                            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                                <div class="ms-3">
+                                    <label for="annualLeave" class="form-label">Số giờ</label>
+                                    <input type="number" min="0" max="8" class="form-control" id="annualLeave" value="0" name="numhours">
+                                </div>
+                                <div class="ms-3">
+                                    <label for="startDate" class="form-label">Từ ngày</label>
+                                    <input type="date" value="<%=moment().format('YYYY-MM-DD')%>" class="form-control" id="startDate" name="startDate">
+                                </div>
+                                <div class="ms-3">
+                                    <label for="endDate" class="form-label">Đến ngày</label>
+                                    <input type="date" class="form-control" value="<%=moment().format('YYYY-MM-DD')%>" id="endDate" name="endDate">
+                                </div>
+                                <div class="ms-3">
+                                    <button class="btn btn-success" type="submit"> Đăng ký </button>
+                                </div>
+
+                            </div>
+                            <div class="p-6">
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a comment here" name="cause" id="floatingTextarea" style="height: 100px;"></textarea>
+                                    <label for="floatingTextarea">Lý do</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Table Danh sách điểm danh -->
+                    <hr>
+                    <p>Tổng số ngày nghỉ đã đăng ký:
+                        <%=timeRecording.totalResAnnual%> ngày
+                    </p>
+                    <p>Tổng số ngày nghỉ còn lại:
+                        <%=timeRecording.annualRemaining%> ngày
+                    </p>
+                    <hr>
+                    <h5 class="mb-4">Danh sách chi tiết</h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Thời gian (giờ)</th>
+                                    <th scope="col">Ngày bắt đầu</th>
+                                    <th scope="col">Ngày kết thúc</th>
+                                    <th scope="col">Lý do</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%timeRecording._doc.regAnnualleave.dayOff.forEach((value, index) => {%>
+                                    <tr>
+                                        <th scope="row">
+                                            <%=index+1%>
+                                        </th>
+                                        <td>
+                                            <%=value.numOfHours%>
+                                        </td>
+                                        <td>
+                                            <%=moment(value.startDay).format('DD-MM-YYYY')%>
+                                        </td>
+                                        <td>
+                                            <%=moment(value.endDay).format('DD-MM-YYYY')%>
+                                        </td>
+                                        <td>
+                                            <%=value.cause%>
+                                        </td>
+                                    </tr>
+                                    <%})%>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- End Content -->
+            <%- include('../includes/footer.ejs')%>
+                <%- include('../includes/end.ejs')%>
