@@ -53,19 +53,19 @@
                                                 <%listInDay.forEach((value, index) => {%>
                                                     <tr>
                                                         <th scope="row">
-                                                            <%=index%>
+                                                            <%=index+1%>
                                                         </th>
                                                         <td>
-                                                            <%=value.workplace%>
+                                                            <%=value.workPlace%>
                                                         </td>
                                                         <td>
-                                                            <%=moment(value.startTime).format('HH:mm - DD/MM/YYYY')%>
+                                                            <%=moment(value.startTime).format('HH:mm:ss - DD/MM/YYYY')%>
                                                         </td>
                                                         <td>
-                                                            <%=value.endTime?moment(value.endTime).format('HH:mm - DD/MM/YYYY'):''%>
+                                                            <%=value.endTime?moment(value.endTime).format('HH:mm:ss - DD/MM/YYYY'):''%>
                                                         </td>
                                                         <td>
-                                                            <%=value.workHours? value.workHours + ' phút': '' %>
+                                                            <%=value.workHours || value.workHours >=0? parseHour(value.workHours,0): '' %>
                                                         </td>
                                                     </tr>
                                                     <%})%>

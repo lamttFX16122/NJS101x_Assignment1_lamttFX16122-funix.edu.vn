@@ -12,4 +12,5 @@ router.get('/user-info', userController.getUserInfo);
 router.post('/change-image', userController.postImage);
 
 router.get('/lookup', userController.getLookup)
+router.get('/test', userController.getTest);
 module.exports = router;

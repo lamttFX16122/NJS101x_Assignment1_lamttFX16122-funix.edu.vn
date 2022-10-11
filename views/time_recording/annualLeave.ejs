@@ -38,13 +38,15 @@
                     <!-- Table Danh sách điểm danh -->
                     <hr>
                     <p>Tổng số ngày nghỉ đã đăng ký:
-                        <%=timeRecording.totalResAnnual%> ngày
+                        <%=parseHour(totalAnnual,1)%>
                     </p>
                     <p>Tổng số ngày nghỉ còn lại:
-                        <%=timeRecording.annualRemaining%> ngày
+                        <%=parseHour(remainingAnnual,1)%>
                     </p>
                     <hr>
-                    <h5 class="mb-4">Danh sách chi tiết</h5>
+                    <h5 class="mb-4">Danh sách đăng ký nghỉ năm
+                        <%=annualLeave.year%>
+                    </h5>
 
                     <div class="table-responsive">
 
@@ -52,32 +54,39 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Thời gian (giờ)</th>
-                                    <th scope="col">Ngày bắt đầu</th>
-                                    <th scope="col">Ngày kết thúc</th>
+                                    <th scope="col">Thời gian nghỉ</th>
+                                    <th scope="col">Từ ngày</th>
+                                    <th scope="col">Đến ngày</th>
                                     <th scope="col">Lý do</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <%timeRecording._doc.regAnnualleave.dayOff.forEach((value, index) => {%>
+                                <%annualLeave.yearItems.forEach((value) => {%>
                                     <tr>
-                                        <th scope="row">
-                                            <%=index+1%>
+                                        <th scope="row" colspan="5">Tháng
+                                            <%=value.month%>
                                         </th>
-                                        <td>
-                                            <%=value.numOfHours%>
-                                        </td>
-                                        <td>
-                                            <%=moment(value.startDay).format('DD-MM-YYYY')%>
-                                        </td>
-                                        <td>
-                                            <%=moment(value.endDay).format('DD-MM-YYYY')%>
-                                        </td>
-                                        <td>
-                                            <%=value.cause%>
-                                        </td>
                                     </tr>
-                                    <%})%>
+                                    <%value.regAnnualleave.dayOff.forEach((x, index) => {%>
+                                        <tr>
+                                            <th scope="row">
+                                                <%=index+1%>
+                                            </th>
+                                            <td>
+                                                <%=parseHour(x.numOfHours, 1)%>
+                                            </td>
+                                            <td>
+                                                <%=moment(x.startDay).format('DD/MM/YYYY')%>
+                                            </td>
+                                            <td>
+                                                <%=moment(x.endDay).format('DD/MM/YYYY')%>
+                                            </td>
+                                            <td>
+                                                <%=x.cause%>
+                                            </td>
+                                        </tr>
+                                        <%})%>
+                                            <%})%>
                             </tbody>
                         </table>
 

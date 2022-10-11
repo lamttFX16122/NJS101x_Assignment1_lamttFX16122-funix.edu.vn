@@ -51,135 +51,104 @@ exports.postImage = (req, res, next) => {
 exports.getLookup = (req, res, next) => {
     req.user.populate({ path: 'timeRecordingId' })
         .then(user => {
-            let lstDayoff = []; //So ngay dang ky nghi
-            let lstMapTime = [];
-
-            //Lay so ngay nghi
-            user.timeRecordingId.regAnnualleave.dayOff.forEach((value) => {
-                if (value.days.length > 1) {
-                    value.days.forEach(x => {
-                        let temp = {
-                            day: moment(x).format('YYYY-MM-DD'),
-                            hour: 8,
-                            info: {...value }
+            let custom = {...user }
+            custom.ddddddddddddddddddd = 'ddddddddddddddddddd';
+            user.timeRecordingId.timeRecording.forEach((year, i) => {
+                //Year
+                year.yearItems.forEach((month, j) => {
+                    //Month
+                    let sumTimeInMonth = 0;
+                    let sumTimeOffTemp = 0;
+                    let sumTimeOffTempMain = 0; // tinh tam time nghi de tinh thoi gian nghi cua thang
+                    month.monthItems.forEach((day, k) => {
+                        //day
+                        let sumTimeInDay = 0;
+                        let note = {};
+                        day.times.forEach(timeItem => {
+                                sumTimeInDay += timeItem.workHours;
+                                // day item
+                            })
+                            //Check Annual
+                        if (month.regAnnualleave.dayOff.length > 0) {
+                            month.regAnnualleave.dayOff.forEach(check => { //Loai tru ngay nghi de cong tong gio cua thang
+                                sumTimeOffTemp += check.numOfHours;
+                                sumTimeOffTempMain += check.numOfHours;
+                                if (check.numOfHours <= 8 && parseInt(moment(check.days[0]).format('DD')) === day.day) {
+                                    // exits ngay nghi theo time hoac 1 ngay
+                                    sumTimeInDay += check.numOfHours;
+                                    note.offHour = check.numOfHours;
+                                    note.off = check;
+                                    sumTimeOffTemp -= check.numOfHours
+                                } else { //if (check.numOfHours > 8) {
+                                    check.days.forEach(arrAnnulItem => {
+                                        if (parseInt(moment(arrAnnulItem).format('DD')) === day.day) {
+                                            sumTimeInDay += 8;
+                                            note.offHour = 8;
+                                            note.off = check;
+                                            sumTimeOffTemp -= 8;
+                                        }
+                                    })
+                                }
+                            })
                         }
-                        lstDayoff.push(temp);
-                    })
-                } else {
-                    let temp;
-                    if (value.numOfHours === 8) {
-                        temp = {
-                            day: moment(value.days[0]).format('YYYY-MM-DD'),
-                            hour: 8,
-                            info: {...value }
-                        }
-                    } else {
-                        temp = {
-                            day: moment(value.days[0]).format('YYYY-MM-DD'),
-                            hour: value.numOfHours,
-                            info: {...value }
-                        }
-                    }
-                    lstDayoff.push(temp);
-                }
-            })
-
-            //Lay so ngay trung vs ngay nghi
-            let currentDay;
-            let totalTimeInMonth = 0;
-            let totalUpTimeInMonth = 0;
-            let totalMissHour = 0;
-            user.timeRecordingId.timeRecording.times.forEach(time => {
-                if (currentDay === moment(time.startTime).format('YYYY-MM-DD')) {
-                    return;
-                } else {
-                    let timeDay = {};
-                    currentDay = moment(time.startTime).format('YYYY-MM-DD');
-                    timeDay.timeReDay = currentDay;
-
-                    lstDayoff.forEach((item, index) => {
-                        if (currentDay === item.day) {
-                            timeDay.annualInfo = item;
-                            lstDayoff.splice(index, 1)
-                        }
-                    })
-                    lstMapTime.push(timeDay);
-                }
-            })
-            let table = [];
-            //add info map annua with timeRecording
-            lstMapTime.forEach(item => {
-                let temp = {};
-                temp.dayofMonth = item.timeReDay; // Ngay bat dau
-                let tempArr = [];
-                let totalTime = 0;
-                let isWorking = false;
-                let upTime = 0;
-                let missHour = 0;
-                user.timeRecordingId.timeRecording.times.forEach(i => {
-                    let working = false;
-                    if (item.timeReDay === moment(i.startTime).format('YYYY-MM-DD')) {
-
-                        if (i.isLoading) {
-                            working = true;
+                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].note = note;
+                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].sumTimeInDay = sumTimeInDay;
+                        let upTimeInDay = 0;
+                        let missTimeInDay = 0;
+                        if (sumTimeInDay >= 480) // so gio lam lon hon so gio cua 1 ngay (8*60=480 doi ra phut)
+                        {
+                            upTimeInDay += sumTimeInDay - 480;
                         } else {
-                            totalTime = totalTime + (i.workHours / 60);
+                            missTimeInDay += 480 - sumTimeInDay;
                         }
-                        tempArr.push(i);
-                    }
-                    isWorking = working;
+                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].upTimeInDay = upTimeInDay;
+                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].missTimeInDay = missTimeInDay;
+                        sumTimeInMonth += sumTimeInDay;
+                    })
+                    user.timeRecordingId.timeRecording[i].yearItems[j].sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
+                    user.timeRecordingId.timeRecording[i].yearItems[j].sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
+                    user.timeRecordingId.timeRecording[i].yearItems[j].sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
+                    let str_yearMonth = `${year.year}-${month.month.toString().length===1?+'0'+month.month.toString(): month.month.toString()}`;
+                    const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang
+                    const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat
+
+                    user.timeRecordingId.timeRecording[i].yearItems[j].numBusinessDay = numOfMonthTemp - weekendOfMonth; //So ngay duoc tinh cong trong thang
+                    user.timeRecordingId.timeRecording[i].yearItems[j].weekendOfMonth = weekendOfMonth;
+                    //Thoi gian tang ca cua thang
+                    let upTimeInMonth = (((numOfMonthTemp - weekendOfMonth) * 8) - (sumTimeInMonth / 60)) >= 0 ? (((numOfMonthTemp - weekendOfMonth) * 8) - (sumTimeInMonth / 60)) : 0;
+                    user.timeRecordingId.timeRecording[i].yearItems[j].upTimeInMonth = upTimeInMonth;
+                    //Thoi gian thieu cua thang
+                    let missTimeInMonth = ((sumTimeInMonth / 60) - ((numOfMonthTemp - weekendOfMonth) * 8)) >= 0 ? ((sumTimeInMonth / 60) - ((numOfMonthTemp - weekendOfMonth) * 8)) : 0;
+                    user.timeRecordingId.timeRecording[i].yearItems[j].missTimeInMonth = missTimeInMonth;
+                    //Lương tháng
+                    let salary = req.user.salaryScale * 3000000 + (upTimeInMonth - missTimeInMonth) * 200000;
+                    user.timeRecordingId.timeRecording[i].yearItems[j].salary = salary;
                 })
-                if (isWorking) {
-                    temp.totalTime = -1;
-                    upTime = 0;
-                } else {
-                    totalTime = totalTime + (item.annualInfo ? item.annualInfo.hour : 0);
-                    if (totalTime > 8) {
-                        upTime = totalTime - 8;
-                    } else {
-                        upTime = 0;
-                    }
-                    temp.totalTime = totalTime;
-                    totalTimeInMonth = totalTimeInMonth + totalTime;
-                }
-                if (totalTime < 8 && totalTime) {
-                    missHour = 8 - totalTime;
-                }
-                totalMissHour = totalMissHour + missHour;
-                temp.missHour = missHour;
-
-                temp.upTime = upTime;
-                temp.annualInfo = item.annualInfo ? item.annualInfo : '';
-                temp.lstRecording = tempArr.sort((a, b) => moment(b.startTime) - moment(a.startTime));
-                totalUpTimeInMonth = totalUpTimeInMonth + upTime;
-                table.push(temp);
             })
 
-            //Add Annual not map
-            lstDayoff.forEach(i => {
-                let temp = {};
-                temp.dayofMonth = i.day;
-                temp.missHour = 0;
-                temp.upTime = 0;
-                temp.totalTime = 0;
-                temp.annualInfo = i;
-                temp.lstRecording = [];
-                totalTimeInMonth = totalTimeInMonth + 8;
-                table.push(temp)
-            })
-
-            // 
-
-            const info = {};
-            info.table = table.sort((a, b) => moment(b.dayofMonth) - moment(a.dayofMonth));
-            info.totalTimeInMonth = totalTimeInMonth;
-            info.totalUpTimeInMonth = totalUpTimeInMonth;
-            info.totalMissHour = totalMissHour;
-            info.salaryMonth = req.user.salaryScale * 3000000 + (totalUpTimeInMonth - totalMissHour) * 200000
-
-
-
-            return res.render('user/lookup', { info: info, moment: moment });
+            console.log(JSON.stringify(user));
+            console.log(custom._doc.timeRecordingId);
         })
         .catch(err => console.log(err));
+
+}
+
+exports.getTest = (req, res, next) => {
+    // console.log('--------------------: ', numWeekendOfMonth('2022-10'));
+    const a = 2;
+    //console.log(a.toString().length)
+    console.log(moment(`2022-${a.toString().length===1?+'0'+a.toString():a.toString()}`).daysInMonth())
+}
+
+function numWeekendOfMonth(monthYear) { //Return number (Sunday and Saturday)
+    let firstDayOfMonth = moment(monthYear).startOf('month');
+    let end = moment(monthYear).endOf('month');
+    let temp = 0;
+    while (firstDayOfMonth <= end) {
+        if (firstDayOfMonth.format('dddd') === 'Sunday' || firstDayOfMonth.format('dddd') === 'Saturday') {
+            temp++;
+        }
+        firstDayOfMonth.add(1, 'days');
+    }
+    return temp;
 }
