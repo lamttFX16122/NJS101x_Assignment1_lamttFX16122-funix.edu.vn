@@ -1,0 +1,308 @@
+<%- include('../includes/head.ejs')%>
+    <%- include('../includes/sidebar.ejs')%>
+        <%- include('../includes/navbar.ejs')%>
+            <!-- Content -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-12">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <!-- <h6 class="mb-4">Pills Navs &amp; Tabs</h6> -->
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Thông tin thân nhiệt</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Thông tin Vaccine</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Thông tin Covid</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="pills-tabContent">
+                                <!-- Thong tin than nhiet -->
+                                <div class="tab-pane fade active show" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                    <!-- Dang ky -->
+                                    <div class="col-sm-12 col-xl-12">
+                                        <div class="bg-secondary rounded p-4">
+                                            <div class="accordion" id="accordionExample">
+
+                                                <div class="accordion-item bg-transparent">
+                                                    <h2 class="accordion-header" id="headingTwo">
+                                                        <button class="accordion-button collapsed" id="btn-collapsedTwo" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                          Đăng ký thông tin thân nhiệt
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+                                                            <form action="/hypothermia" method="POST">
+                                                                <div class="mb-3">
+                                                                    <label for="time" class="form-label">Thời gian</label>
+                                                                    <input type="time" class="form-control" id="time" name="time">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="date" class="form-label">Ngày</label>
+                                                                    <input type="date" class="form-control" id="date" name="date">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="temperature" class="form-label">Nhiệt độ</label>
+                                                                    <input type="number" class="form-control" step="any" id="temperature" name="temperature">
+                                                                </div>
+                                                                <div class="mb-3 form-floating">
+                                                                    <textarea class="form-control" id="affection" name="affection" style="height: 100px;"></textarea>
+                                                                    <label for="affection">Tình trạng sức khỏe</label>
+                                                                </div>
+                                                                <!-- ------------ -->
+                                                                <div class="d-flex justify-content-end">
+                                                                    <input type="hidden" id="txt_id" name="txt_id" value="">
+                                                                    <button type="button" class="btn btn-primary btn-clearTwo mx-3">Hủy</button>
+                                                                    <button type="submit" class="btn btn-success">Thêm</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <%if(covid.hypothermia.length>0){%>
+                                        <table class="table table-hover tbl-hypothermia">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Thời gian</th>
+                                                    <th scope="col">Ngày</th>
+                                                    <th scope="col">Nhiệt độ (&deg;c)</th>
+                                                    <th scope="col">Tình trạng</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%covid.hypothermia.forEach((value, index) => {%>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <%=index+1%>
+                                                        </th>
+                                                        <td>
+                                                            <%=value.time%>
+                                                        </td>
+                                                        <td id="<%=value.date%>">
+                                                            <%=moment(value.date).format('DD/MM/YYYY')%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.temperature%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.affection%>
+                                                        </td>
+                                                        <td class="d-flex justify-content-end" id="<%=value._id%>">
+                                                            <button type="button" class="btn btn-info btn-edit-hypothermia mx-2" id="<%=index%>">Sửa</button>
+                                                            <form action="/deleteHypothermia" method="POST">
+                                                                <input type="hidden" value="<%=value._id%>" name="remove_hypothermia">
+                                                                <button type="submit" class="btn btn-primary btn-remove-hypothermia">Xóa</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+
+                                                    <%})%>
+                                            </tbody>
+                                        </table>
+                                        <%}else{%>
+                                            <h3>Chưa có thông tin thân nhiệt!</h3>
+                                            <%}%>
+                                </div>
+                                <!-- End Thong tin than nhiet -->
+
+                                <!--Thong tin Vaccine -->
+                                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                                    <!-- Dang ky -->
+                                    <div class="col-sm-12 col-xl-12">
+                                        <div class="bg-secondary rounded p-4">
+                                            <div class="accordion" id="accordionExample">
+
+                                                <div class="accordion-item bg-transparent">
+                                                    <h2 class="accordion-header" id="headingTwo">
+                                                        <button class="accordion-button collapsed" id="btn-collapseTwo1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo1" aria-expanded="false" aria-controls="collapseTwo1">
+                                                          Đăng ký thông tin tiêm Vaccine
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseTwo1" class="accordion-collapse collapse" aria-labelledby="headingTwo1" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+                                                            <form action="/vaccine" method="POST">
+                                                                <div class="mb-3">
+                                                                    <label for="numVac" class="form-label">Mũi thứ</label>
+                                                                    <input type="number" class="form-control" id="numVac" name="numVac">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="dateVac" class="form-label">Thời gian</label>
+                                                                    <input type="date" class="form-control" id="dateVac" name="dateVac">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="typeVac" class="form-label">Loại Vaccine</label>
+                                                                    <input type="text" class="form-control" id="typeVac" name="typeVac">
+                                                                </div>
+                                                                <!-- ------------ -->
+                                                                <div class="d-flex justify-content-end">
+                                                                    <input type="hidden" id="txt_id1" name="txt_id1" value="">
+                                                                    <button type="button" class="btn btn-primary btn-clearTwo1 mx-3">Hủy</button>
+                                                                    <button type="submit" class="btn btn-success">Thêm</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <%if(covid.vaccine.length>0){%>
+                                        <table class="table table-hover tbl-vaccine">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Mũi thứ</th>
+                                                    <th scope="col">Thời gian tiêm</th>
+                                                    <th scope="col">Loại Vaccine</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%covid.vaccine.forEach((value, index) => {%>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <%=index+1%>
+                                                        </th>
+                                                        <td>
+                                                            <%=value.numVac%>
+                                                        </td>
+                                                        <td id="<%=value.dateVac%>">
+                                                            <%=moment(value.dateVac).format('DD/MM/YYYY')%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.typeVac%>
+                                                        </td>
+                                                        <td class="d-flex justify-content-end" id="<%=value._id%>">
+                                                            <button type="button" class="btn btn-info btn-edit-vaccine mx-2" id="<%=index%>">Sửa</button>
+                                                            <form action="/deleteVaccine" method="POST">
+                                                                <input type="hidden" value="<%=value._id%>" name="remove_vaccine">
+                                                                <button type="submit" class="btn btn-primary btn-remove-vaccine">Xóa</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+
+                                                    <%})%>
+                                            </tbody>
+                                        </table>
+                                        <%}else{%>
+                                            <h3>Chưa có thông tin vaccine!</h3>
+                                            <%}%>
+                                </div>
+                                <!--End Thong tin Vaccine -->
+
+                                <!--Thong tin Covid -->
+                                <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                                    <!-- Dang ky -->
+                                    <div class="col-sm-12 col-xl-12">
+                                        <div class="bg-secondary rounded p-4">
+                                            <div class="accordion" id="accordionExample">
+
+                                                <div class="accordion-item bg-transparent">
+                                                    <h2 class="accordion-header" id="headingTwo">
+                                                        <button id="btn-collapseTwo2" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo2" aria-expanded="false" aria-controls="collapseTwo2">
+                                                      Đăng ký thông tin dương tính Covid
+                                                    </button>
+                                                    </h2>
+                                                    <div id="collapseTwo2" class="accordion-collapse collapse" aria-labelledby="headingTwo2" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+                                                            <form action="/covid" method="POST">
+                                                                <div class="mb-3">
+                                                                    <label for="numCovid" class="form-label">Lần thứ</label>
+                                                                    <input type="number" class="form-control" id="numCovid" name="numCovid">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="dateCovid" class="form-label">Ngày mắc</label>
+                                                                    <input type="date" class="form-control" id="dateCovid" name="dateCovid">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="symptom" class="form-label">Triệu chứng</label>
+                                                                    <input type="text" class="form-control" id="symptom" name="symptom">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="statusCovid" class="form-label">Tình trạng</label>
+                                                                    <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example" id="statusCovid" name="statusCovid">
+                                                                        <option selected="" value="true">Đã hết</option>
+                                                                        <option value="false">Đang mắc</option>
+                                                                    </select>
+                                                                    <!-- <label for="statusCovid" class="form-label">Tình trạng</label>
+                                                                    <input type="text" class="form-control" id="statusCovid" name="statusCovid"> -->
+                                                                </div>
+                                                                <!-- ------------ -->
+                                                                <div class="d-flex justify-content-end">
+                                                                    <input type="hidden" id="txt_id2" name="txt_id2" value="">
+                                                                    <button type="button" class="btn btn-primary btn-clearTwo2 mx-3">Hủy</button>
+                                                                    <button type="submit" class="btn btn-success">Thêm</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <%if(covid.covid.length>0){%>
+                                        <table class="table table-hover tbl-covid">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Lần thứ</th>
+                                                    <th scope="col">Thời gian</th>
+                                                    <th scope="col">Triệu chứng</th>
+                                                    <th scope="col">Tình trạng</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%covid.covid.forEach((value, index) => {%>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <%=index+1%>
+                                                        </th>
+                                                        <td>
+                                                            <%=value.numCovid%>
+                                                        </td>
+                                                        <td id="<%=value.dateCovid%>">
+                                                            <%=moment(value.dateCovid).format('DD/MM/YYYY')%>
+                                                        </td>
+                                                        <td>
+                                                            <%=value.symptom%>
+                                                        </td>
+                                                        <td id="<%=value.statusCovid%>">
+                                                            <%=value.statusCovid? 'Đã hết' : 'Đang mắc'%>
+                                                        </td>
+                                                        <td class="d-flex justify-content-end" id="<%=value._id%>">
+                                                            <button type="button" class="btn btn-info btn-edit-covid mx-2" id="<%=index%>">Sửa</button>
+                                                            <form action="/deleteCovid" method="POST">
+                                                                <input type="hidden" value="<%=value._id%>" name="remove_covid">
+                                                                <button type="submit" class="btn btn-primary btn-remove-covid">Xóa</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+
+                                                    <%})%>
+                                            </tbody>
+                                        </table>
+                                        <%}else{%>
+                                            <h3>Chưa có thông tin dương tính Covid!</h3>
+                                            <%}%>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Content -->
+
+            <%- include('../includes/footer.ejs')%>
+                <%- include('../includes/end.ejs')%>

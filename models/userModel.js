@@ -33,6 +33,10 @@ const userSchema = new Schema({
     timeRecordingId: {
         type: Schema.Types.ObjectId,
         ref: 'TimeRecording'
+    },
+    covidId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Covid'
     }
 
 });

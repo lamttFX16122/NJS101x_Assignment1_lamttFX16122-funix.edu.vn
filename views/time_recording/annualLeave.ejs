@@ -6,7 +6,7 @@
                 <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
 
                     <!-- Đăng ký nghỉ -->
-                    <form action="/user/annualLeave" method="POST">
+                    <form action="/annualLeave" method="POST">
                         <div class="col-sm-6 col-xl-12 p-4">
                             <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                                 <div class="ms-3">
@@ -22,7 +22,9 @@
                                     <input type="date" class="form-control" value="<%=moment().format('YYYY-MM-DD')%>" id="endDate" name="endDate">
                                 </div>
                                 <div class="ms-3">
-                                    <button class="btn btn-success" type="submit"> Đăng ký </button>
+                                    <input type="hidden" value="" name="txt_id_annual" id="txt_id_annual">
+                                    <button class="btn btn-success" id="annual-submit" type="submit"> Đăng ký </button>
+                                    <button class="btn btn-primary" id="annual-clear" type="button"> Hủy </button>
                                 </div>
 
                             </div>
@@ -50,7 +52,7 @@
 
                     <div class="table-responsive">
 
-                        <table class="table">
+                        <table class="table table-hover tbl-annual">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
@@ -58,35 +60,51 @@
                                     <th scope="col">Từ ngày</th>
                                     <th scope="col">Đến ngày</th>
                                     <th scope="col">Lý do</th>
+                                    <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <%annualLeave.yearItems.forEach((value) => {%>
-                                    <tr>
-                                        <th scope="row" colspan="5">Tháng
-                                            <%=value.month%>
-                                        </th>
-                                    </tr>
-                                    <%value.regAnnualleave.dayOff.forEach((x, index) => {%>
+                                <%let count=0%>
+                                    <%annualLeave.yearItems.forEach((value) => {%>
                                         <tr>
-                                            <th scope="row">
-                                                <%=index+1%>
+                                            <th scope="row" colspan="6">Tháng
+                                                <%=value.month%>
                                             </th>
-                                            <td>
-                                                <%=parseHour(x.numOfHours, 1)%>
-                                            </td>
-                                            <td>
-                                                <%=moment(x.startDay).format('DD/MM/YYYY')%>
-                                            </td>
-                                            <td>
-                                                <%=moment(x.endDay).format('DD/MM/YYYY')%>
-                                            </td>
-                                            <td>
-                                                <%=x.cause%>
-                                            </td>
+                                            <%count++%>
                                         </tr>
-                                        <%})%>
+                                        <%value.regAnnualleave.dayOff.forEach((x, index) => {%>
+                                            <tr>
+                                                <%count++%>
+                                                    <th scope="row">
+                                                        <%=index+1%>
+                                                    </th>
+                                                    <td id="<%=x.numOfHours%>">
+                                                        <%=parseHour(x.numOfHours, 1)%>
+                                                    </td>
+                                                    <td id="<%=x.startDay%>">
+                                                        <%=moment(x.startDay).format('DD/MM/YYYY')%>
+                                                    </td>
+                                                    <td id="<%=x.endDay%>">
+                                                        <%=moment(x.endDay).format('DD/MM/YYYY')%>
+                                                    </td>
+                                                    <td>
+                                                        <%=x.cause%>
+                                                    </td>
+                                                    <td id="<%=x._id%>">
+                                                        <%if( moment(x.startDay) > moment()){%>
+                                                            <div class="d-flex justify-content-end">
+                                                                <button type="button" class="btn btn-info btn-edit-annual mx-2" id="<%=count-1%>">Sửa</button>
+                                                                <form action="/remove-annual" method="POST">
+                                                                    <input type="hidden" value="<%=x._id%>" name="remove_annual">
+                                                                    <button type="submit" class="btn btn-primary btn-remove_annual">Xóa</button>
+                                                                </form>
+                                                            </div>
+                                                            <%}%>
+
+                                                    </td>
+                                            </tr>
                                             <%})%>
+                                                <%})%>
                             </tbody>
                         </table>
 

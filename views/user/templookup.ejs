@@ -1,0 +1,233 @@
+<div class="bg-secondary text-center rounded p-4">
+    <%data.timeRecordingId.timeRecording.forEach(year=>{%>
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Danh sách điểm danh năm
+                <%=year.year%>
+            </h6>
+        </div>
+        <hr>
+        <%year.yearItems.forEach(month=>{%>
+            <%if(month.isNotRecording){%>
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="mb-0">
+                        <h6>Danh sách tháng
+                            <%=month.month%>
+                        </h6>
+                        <ul class="list-group list-group-flush align-items-start">
+                            <li class="list-group-item bg-secondary border-0">Thời gian đã làm :
+                                <%=month.sumTimeInMonth?parseHour(month.sumTimeInMonth,0):'Chưa kết thúc'%>
+                            </li>
+                            <li class="list-group-item bg-secondary border-0">Thời gian nghỉ đã đăng ký:
+                                <%=parseHour(month.sumOffMonthMain,1)%>
+                            </li>
+                            <li class="list-group-item bg-secondary border-0">Thời gian bắt buộc của tháng:
+                                <%=month.numBusinessDay%> ngày ~ (
+                                    <%=month.numBusinessDay*8%> giờ)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="list-group list-group-flush align-items-start">
+                            <li class="list-group-item bg-secondary border-0">Thời gian tăng ca:
+                                <%=parseHour(month.upTimeInMonth,0)%>
+                            </li>
+                            <li class="list-group-item bg-secondary border-0">Thời gian làm thiếu:
+                                <%=parseHour(month.missTimeInMonth,0)%>
+                            </li>
+                            <li class="list-group-item bg-secondary border-0">Lương:
+                                <%=month.salary%>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Nơi làm việc</th>
+                                <th scope="col">Bắt đầu</th>
+                                <th scope="col">Kết thúc</th>
+                                <th scope="col">Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%month.monthItems.forEach(day=>{%>
+                                <tr>
+                                    <th colspan="5">
+                                        <div class="d-flex align-items-center justify-content-start mx-4">
+                                            <span class="text-info">
+                                                    <%=day.day%>/
+                                                        <%=month.month%>
+                                                            /
+                                                            <%=year.year%>
+                                                </span>
+                                        </div>
+                                    </th>
+                                </tr>
+
+                                <%day.times.forEach((item, index)=>{%>
+                                    <tr>
+                                        <th scope="row">
+                                            <%=index+1%>
+                                        </th>
+                                        <td>
+                                            <%=item.workPlace%>
+                                        </td>
+                                        <td>
+                                            <%=moment(item.startTime).format('HH:mm:ss - DD/MM/YYYY')%>
+                                        </td>
+                                        <td>
+                                            <%=item.endTime?moment(item.endTime).format('HH:mm:ss - DD/MM/YYYY'):''%>
+                                        </td>
+                                        <td>
+                                            <%=item.workHours || item.workHours >=0? parseHour(item.workHours,0): '' %>
+                                        </td>
+
+                                    </tr>
+                                    <%})%>
+                                        <tr>
+                                            <th colspan="5">
+                                                <div class="d-flex align-items-center justify-content-between mx-4 text-success">
+                                                    <span>
+                                                            Tổng thời gian: <%=day.sumTimeInDay? parseHour(day.sumTimeInDay,0): 'Chưa kết thúc'%>
+                                                        </span>
+
+                                                    <span>
+                                                            Đăng ký nghỉ: 
+                                                            <%if(day.note.offHour && day.note.offHour>0){%>
+                                                                <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#exampleModal<%=day._id%>"><%=parseHour(day.note.offHour, 1)%></button> 
+                                                                 <!-- ================================================================================= -->
+                                                          
+<!-- Modal -->
+<div class="modal fade" id="exampleModal<%=day._id%>" tabindex="-1" aria-labelledby="<%=day._id%>" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content bg-secondary">
+
+<div class="modal-header">
+<h3 class="modal-title fs-5" id="exampleModalLabel">Chi tiết ngày nghỉ</h3>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">  
+<ul class="list-group list-group-flush align-items-start"><!--align-items-start-->
+    <li class="list-group-item bg-secondary border-0">Từ ngày: <%=moment(day.note.off.startDay).format('DD/MM/YYYY')%></li>
+    <li class="list-group-item bg-secondary border-0">Đến ngày: <%=moment(day.note.off.endDay).format('DD/MM/YYYY')%></li>
+    <li class="list-group-item bg-secondary border-0">Số ngày/giờ nghỉ: <%=parseHour(day.note.off.numOfHours,1)%></li>
+    <li class="list-group-item bg-secondary border-0">Lý do: <%=day.note.off.cause%></li>
+</ul>                                                
+</div>
+
+<div class="modal-footer">
+<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+</div>
+
+</div>
+</div>
+</div>
+
+    <!-- ================================================================================= -->
+    <%}else{%>
+        0
+        <%}%>
+            </span>
+                                                    <span>
+                                                            Thiếu giờ: <%= parseHour(day.missTimeInDay,0)%>
+                                                        </span>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <%})%>
+                        </tbody>
+                    </table>
+
+                </div>
+                <br>
+                <%}%>
+                    <%})%>
+                        <%})%>
+
+</div>
+
+<!-- nghi -->
+<div class="col-sm-12 col-xl-12">
+    <div class="bg-secondary text-center rounded p-4">
+        <%data.timeRecordingId.timeRecording.forEach(year=>{%>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="mb-0">Danh sách đăng ký nghỉ</h6>
+                <h6>Năm
+                    <%=year.year%>
+                </h6>
+            </div>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="mb-0">
+                    <ul class="list-group list-group-flush align-items-start">
+                        <li class="list-group-item bg-secondary border-0">Tổng thời gian đã nghỉ của năm:
+                            <%=parseHour(year.totalAnnualOfYear,1)%>
+                        </li>
+                        <li class="list-group-item bg-secondary border-0">Thời gian nghỉ còn lại của năm:
+                            <%=parseHour(data.annualLeave,1)%>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Thời gian</th>
+                            <th scope="col">Bắt đầu</th>
+                            <th scope="col">Kết thúc</th>
+                            <th scope="col">Lý do</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%year.yearItems.forEach(month=>{%>
+                            <tr>
+                                <th colspan="5">
+                                    <div class="d-flex align-items-center justify-content-start mx-4">
+                                        <span class="text-info">
+                                                <%=month.month%>
+                                                    /
+                                                    <%=year.year%>
+                                        </span>
+                                    </div>
+                                </th>
+                            </tr>
+                            <%month.regAnnualleave.dayOff.forEach((item, index)=>{%>
+                                <tr>
+                                    <th scope="row">
+                                        <%=index+1%>
+                                    </th>
+                                    <td>
+                                        <%=parseHour(item.numOfHours,1)%>
+                                    </td>
+                                    <td>
+                                        <%=moment(item.startDay).format('DD/MM/YYYY')%>
+                                    </td>
+                                    <td>
+                                        <%=item.endDay?moment(item.endDay).format('DD/MM/YYYY'):''%>
+                                    </td>
+                                    <td>
+                                        <%=item.cause %>
+                                    </td>
+                                </tr>
+                                <%})%>
+                                    <tr>
+                                        <th colspan="5">
+                                            <div class="d-flex align-items-center justify-content-between mx-4 text-success">
+                                                <span>
+                                                Tổng thời gian nghỉ: <%= parseHour(month.sumOffMonthMain,1)%>
+                                            </span>
+                                            </div>
+                                        </th>
+                                    </tr>
+
+                                    <%})%>
+                    </tbody>
+                </table>
+            </div>
+            <%})%>
+                <!-- Danh sách đăng ký nghỉ theo tháng -->
+    </div>
+</div>

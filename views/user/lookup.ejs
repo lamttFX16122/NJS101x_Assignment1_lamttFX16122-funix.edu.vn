@@ -2,194 +2,320 @@
     <%- include('../includes/sidebar.ejs')%>
         <%- include('../includes/navbar.ejs')%>
             <!-- Content -->
+
+            <!-- ----------------------------------------------------------------------------------------------------------- -->
             <div class="container-fluid pt-4 px-4">
-                <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
-
-                    <!-- Bat dau lam viec -->
-                    <div class="col-sm-6 col-xl-12 p-4">
-                        <div class="bg-secondary rounded h-100 p-4">
-                            <h6 class="mb-4">Tổng Tháng &amp; Tìm kiếm</h6>
-                            <nav>
-                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Tổng tháng</button>
-                                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Tìm kiếm</button>
-                                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</button>
-                                </div>
-                            </nav>
-                            <div class="tab-content pt-3" id="nav-tabContent">
-                                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                                    <ul>
-                                        <li>Tổng thời gian làm trong tháng (Kể cả nghỉ phép):
-                                            <%=info.totalTimeInMonth%>
-                                        </li>
-                                        <li>Tổng thời gian tăng ca trong tháng:
-                                            <%=info.totalUpTimeInMonth%>
-                                        </li>
-                                        <li>Tổng thời gian làm thiếu trong tháng:
-                                            <%=info.totalMissHour%>
-                                        </li>
-                                        <li>Lương tháng hoặc tạm tính:
-                                            <%=info.salaryMonth%>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                                    <div class="col-sm-12 col-xl-12">
-                                        <div class="bg-secondary rounded h-100 p-4">
-                                            <form id="frm_search">
-                                                <div class="row mb-3">
-                                                    <label for="fromDay" class="col-sm-1 col-form-label">Từ</label>
-                                                    <div class="col-sm-5">
-                                                        <input type="date" value="<%=moment().startOf('month').format('YYYY-MM-DD')%>" class="form-control" id="fromDay" name="fromDay">
-                                                    </div>
-
-                                                    <label for="endDay" class="col-sm-1 col-form-label">Đến</label>
-                                                    <div class="col-sm-5">
-                                                        <input type="date" value="<%=moment().format('YYYY-MM-DD')%>" name="endDay" class="form-control" id="endDay">
-                                                    </div>
-                                                </div>
-
-                                                <hr>
-
-                                                <div class="row mb-3">
-                                                    <div class="col-sm-6">
-                                                        <h6>Tùy chọn</h6>
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" name="ckb_missHour" type="checkbox" id="ckb_missHour">
-                                                                <label class="form-check-label" for="ckb_missHour">
-                                                                Thiều giờ
-                                                            </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="ckb_upHour" id="ckb_upHour">
-                                                                <label class="form-check-label" for="ckb_upHour">
-                                                                Tăng ca
-                                                            </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="ckb_annual" id="ckb_annual">
-                                                                <label class="form-check-label" for="ckb_annual">
-                                                                Ngày nghỉ
-                                                            </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-6">
-                                                        <h6>Nơi làm việc</h6>
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="ckb_company" id="ckb_company">
-                                                                <label class="form-check-label" for="ckb_company">
-                                                                        Công ty
-                                                                    </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="ckb_home" id="ckb_home">
-                                                                <label class="form-check-label" for="ckb_home">
-                                                                        Tại nhà
-                                                                    </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-sm-12">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="ckb_customer" id="ckb_customer">
-                                                                <label class="form-check-label" for="ckb_customer">
-                                                                        Khách hàng
-                                                                    </label>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <hr>
-
-                                                </div>
-                                                <button type="submit" id="btn_search" class="btn btn-primary">Tìm</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                                    Sit consetetur eirmod lorem ea magna sadipscing ipsum elitr invidunt, dolores lorem erat ipsum ut aliquyam eos lorem sed. Nonumy aliquyam ea justo eos dolores dolores duo dolores. Aliquyam dolor sea dolores sit takimata no erat vero. At lorem justo tempor
-                                    lorem duo, stet kasd aliquyam ipsum voluptua labore at.
-                                </div>
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-12">
+                        <div class="bg-secondary text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Thông tin chung</h6>
+                                <a href="">Show All</a>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Table Danh sách điểm danh -->
-                    <h6 class="mb-4">Danh sách các lần điểm danh</h6>
-                    <div class="table-responsive">
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Nơi làm việc</th>
-                                    <th scope="col">Thời gian bắt đầu</th>
-                                    <th scope="col">Thời gian kết thúc</th>
-                                    <th scope="col">Thời gian đã làm</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%info.table.forEach((value) => {%>
-                                    <tr class="bg-dark text-info">
-                                        <th scope="row" colspan="5">
-                                            Ngày
-                                            <%=moment(value.dayofMonth).format('DD-MM-YYYY')%>
-                                        </th>
-                                    </tr>
-                                    <%value.lstRecording.forEach((time, index) => {%>
-                                        <tr>
-                                            <th scope="row">
-                                                <%=index+1%>
-                                            </th>
-                                            <td scope="col">
-                                                <%=time.workplace%>
-                                            </td>
-                                            <td scope="col">
-                                                <%=moment(time.startTime).format('HH:mm')%>
-                                            </td>
-                                            <td scope="col">
-                                                <%=time.endTime? moment(time.endTime).format('HH:mm'): 'Chưa kết thúc'%>
-                                            </td>
-                                            <td scope="col">
-                                                <%=time.workHours>=0?time.workHours:'Chưa kết thúc'%>
-                                            </td>
-                                        </tr>
-                                        <%})%>
-
-                                            <tr>
-                                                <th colspan="5" scope="row">
-                                                    <div class="d-flex justify-content-end">
-                                                        <span>  Tổng số giờ làm của ngày:
-                                                            <%=value.totalTime===-1? 'Chưa kết thúc': value.totalTime%></span>
-                                                        <span class="mx-3">   Số giờ tăng ca:
-                                                                <%=value.upTime%></span>
-                                                        <span>Số giờ làm thiếu:
-                                                                    <%=value.missHour%></span>
-                                                    </div>
-                                                </th>
-                                            </tr>
-                                            <%})%>
-
-                            </tbody>
-                        </table>
-
-                    </div>
                 </div>
             </div>
+
+            <!-- ================================================ -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-12">
+                        <!-- ================================================ -->
+                        <div class="bg-secondary rounded p-4">
+                            <nav>
+                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Thông tin chung</button>
+                                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Danh sách điểm danh</button>
+                                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Danh sách đăng ký nghỉ</button>
+                                </div>
+                            </nav>
+                            <div class="tab-content pt-3" id="nav-tabContent">
+                                <div class="tab-pane fade active show" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                                    <div class="bg-secondary rounded h-100 p-4">
+                                        <!-- CART -->
+                                        <div class="col col-lg-12 mb-4 mb-lg-0">
+                                            <div class="card mb-3 bg-secondary" style="border-radius: .5rem;">
+                                                <div class="row g-0">
+                                                    <div class="col-md-3 gradient-custom text-center text-white" style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                                                        <img src="<%=data.imageUrl%>" alt="Avatar" class="img-fluid my-4" style="width: 100px;" />
+                                                        <h5>
+                                                            <%=data.name%>
+                                                        </h5>
+                                                        <p>(
+                                                            <%=data._id%>)</p>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <ul class="list-group list-group-flush align-items-start">
+                                                            <li class="list-group-item bg-secondary border-0">Ngày sinh:
+                                                                <%=moment(data.doB).format('DD/MM/YYYY')%>
+
+                                                            </li>
+                                                            <li class="list-group-item bg-secondary border-0">Phòng ban:
+                                                                <%=data.department%>
+
+                                                            </li>
+                                                            <li class="list-group-item bg-secondary border-0">Ngày vào cty:
+                                                                <%=moment(data.startDate).format('DD/MM/YYYY')%>
+
+                                                            </li>
+                                                            <li class="list-group-item bg-secondary border-0">Mức lương:
+                                                                <%=data.salaryScale%>
+
+                                                            </li>
+                                                            <li class="list-group-item bg-secondary border-0">Số ngày nghỉ còn lại:
+                                                                <%=parseHour(data.annualLeave,1)%>
+
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                    <div class="bg-secondary text-center rounded p-4">
+                                        <%data.timeRecordingId.timeRecording.forEach(year=>{%>
+                                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                                <h6 class="mb-0">Danh sách điểm danh năm
+                                                    <%=year.year%>
+                                                </h6>
+                                            </div>
+                                            <hr>
+                                            <%year.yearItems.forEach(month=>{%>
+                                                <%if(month.isNotRecording){%>
+                                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                                        <div class="mb-0">
+                                                            <h6>Danh sách tháng
+                                                                <%=month.month%>
+                                                            </h6>
+                                                            <ul class="list-group list-group-flush align-items-start">
+                                                                <li class="list-group-item bg-secondary border-0">Thời gian đã làm :
+                                                                    <%=month.sumTimeInMonth?parseHour(month.sumTimeInMonth,0):'Chưa kết thúc'%>
+                                                                </li>
+                                                                <li class="list-group-item bg-secondary border-0">Thời gian nghỉ đã đăng ký:
+                                                                    <%=parseHour(month.sumOffMonthMain,1)%>
+                                                                </li>
+                                                                <li class="list-group-item bg-secondary border-0">Thời gian bắt buộc của tháng:
+                                                                    <%=month.numBusinessDay%> ngày ~ (
+                                                                        <%=month.numBusinessDay*8%> giờ)</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div>
+                                                            <ul class="list-group list-group-flush align-items-start">
+                                                                <li class="list-group-item bg-secondary border-0">Thời gian tăng ca:
+                                                                    <%=parseHour(month.upTimeInMonth,0)%>
+                                                                </li>
+                                                                <li class="list-group-item bg-secondary border-0">Thời gian làm thiếu:
+                                                                    <%=parseHour(month.missTimeInMonth,0)%>
+                                                                </li>
+                                                                <li class="list-group-item bg-secondary border-0">Lương:
+                                                                    <%=month.salary%>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Nơi làm việc</th>
+                                                                    <th scope="col">Bắt đầu</th>
+                                                                    <th scope="col">Kết thúc</th>
+                                                                    <th scope="col">Thời gian</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <%month.monthItems.forEach(day=>{%>
+                                                                    <tr>
+                                                                        <th colspan="5">
+                                                                            <div class="d-flex align-items-center justify-content-start mx-4">
+                                                                                <span class="text-info">
+                                                                                        <%=day.day%>/
+                                                                                            <%=month.month%>
+                                                                                                /
+                                                                                                <%=year.year%>
+                                                                                    </span>
+                                                                            </div>
+                                                                        </th>
+                                                                    </tr>
+
+                                                                    <%day.times.forEach((item, index)=>{%>
+                                                                        <tr>
+                                                                            <th scope="row">
+                                                                                <%=index+1%>
+                                                                            </th>
+                                                                            <td>
+                                                                                <%=item.workPlace%>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%=moment(item.startTime).format('HH:mm:ss - DD/MM/YYYY')%>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%=item.endTime?moment(item.endTime).format('HH:mm:ss - DD/MM/YYYY'):''%>
+                                                                            </td>
+                                                                            <td>
+                                                                                <%=item.workHours || item.workHours >=0? parseHour(item.workHours,0): '' %>
+                                                                            </td>
+
+                                                                        </tr>
+                                                                        <%})%>
+                                                                            <tr>
+                                                                                <th colspan="5">
+                                                                                    <div class="d-flex align-items-center justify-content-between mx-4 text-success">
+                                                                                        <span>
+                                                                                                Tổng thời gian: <%=day.sumTimeInDay? parseHour(day.sumTimeInDay,0): 'Chưa kết thúc'%>
+                                                                                            </span>
+
+                                                                                        <span>
+                                                                                                Đăng ký nghỉ: 
+                                                                                                <%if(day.note.offHour && day.note.offHour>0){%>
+                                                                                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#exampleModal<%=day._id%>"><%=parseHour(day.note.offHour, 1)%></button> 
+                                                                                                     <!-- ================================================================================= -->
+                                                                                              
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal<%=day._id%>" tabindex="-1" aria-labelledby="<%=day._id%>" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content bg-secondary">
+                    
+                            <div class="modal-header">
+                              <h3 class="modal-title fs-5" id="exampleModalLabel">Chi tiết ngày nghỉ</h3>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                    
+                            <div class="modal-body">  
+                                    <ul class="list-group list-group-flush align-items-start"><!--align-items-start-->
+                                        <li class="list-group-item bg-secondary border-0">Từ ngày: <%=moment(day.note.off.startDay).format('DD/MM/YYYY')%></li>
+                                        <li class="list-group-item bg-secondary border-0">Đến ngày: <%=moment(day.note.off.endDay).format('DD/MM/YYYY')%></li>
+                                        <li class="list-group-item bg-secondary border-0">Số ngày/giờ nghỉ: <%=parseHour(day.note.off.numOfHours,1)%></li>
+                                        <li class="list-group-item bg-secondary border-0">Lý do: <%=day.note.off.cause%></li>
+                                    </ul>                                                
+                            </div>
+                        
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+                            </div>
+                      
+                        </div>
+                    </div>
+                    </div>
+                    
+                                        <!-- ================================================================================= -->
+                                        <%}else{%>
+                                            0
+                                            <%}%>
+                                                </span>
+                                                                                        <span>
+                                                                                                Thiếu giờ: <%= parseHour(day.missTimeInDay,0)%>
+                                                                                            </span>
+                                                                                    </div>
+                                                                                </th>
+                                                                            </tr>
+                                                                            <%})%>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                    <br>
+                                                    <%}%>
+                                                        <%})%>
+                                                            <%})%>
+
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                                    <div class="bg-secondary text-center rounded p-4">
+                                        <%data.timeRecordingId.timeRecording.forEach(year=>{%>
+                                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                                <h6 class="mb-0">Danh sách đăng ký nghỉ</h6>
+                                                <h6>Năm
+                                                    <%=year.year%>
+                                                </h6>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                                <div class="mb-0">
+                                                    <ul class="list-group list-group-flush align-items-start">
+                                                        <li class="list-group-item bg-secondary border-0">Tổng thời gian đã nghỉ của năm:
+                                                            <%=parseHour(year.totalAnnualOfYear,1)%>
+                                                        </li>
+                                                        <li class="list-group-item bg-secondary border-0">Thời gian nghỉ còn lại của năm:
+                                                            <%=parseHour(data.annualLeave,1)%>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">#</th>
+                                                            <th scope="col">Thời gian</th>
+                                                            <th scope="col">Bắt đầu</th>
+                                                            <th scope="col">Kết thúc</th>
+                                                            <th scope="col">Lý do</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <%year.yearItems.forEach(month=>{%>
+                                                            <tr>
+                                                                <th colspan="5">
+                                                                    <div class="d-flex align-items-center justify-content-start mx-4">
+                                                                        <span class="text-info">
+                                                                                <%=month.month%>
+                                                                                    /
+                                                                                    <%=year.year%>
+                                                                        </span>
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
+                                                            <%month.regAnnualleave.dayOff.forEach((item, index)=>{%>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <%=index+1%>
+                                                                    </th>
+                                                                    <td>
+                                                                        <%=parseHour(item.numOfHours,1)%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%=moment(item.startDay).format('DD/MM/YYYY')%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%=item.endDay?moment(item.endDay).format('DD/MM/YYYY'):''%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%=item.cause %>
+                                                                    </td>
+                                                                </tr>
+                                                                <%})%>
+                                                                    <tr>
+                                                                        <th colspan="5">
+                                                                            <div class="d-flex align-items-center justify-content-between mx-4 text-success">
+                                                                                <span>
+                                                                                Tổng thời gian nghỉ: <%= parseHour(month.sumOffMonthMain,1)%>
+                                                                            </span>
+                                                                            </div>
+                                                                        </th>
+                                                                    </tr>
+
+                                                                    <%})%>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <%})%>
+                                                <!-- Danh sách đăng ký nghỉ theo tháng -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ================================================ -->
+                    </div>
+                    <!-- Danh sách đăng ký nghỉ -->
+
+                </div>
+            </div>
+            <!-- ----------------------------------------------------------------------------------------------------------- -->
             <!-- End Content -->
             <%- include('../includes/footer.ejs')%>
                 <%- include('../includes/end.ejs')%>

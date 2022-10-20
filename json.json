@@ -59,24 +59,62 @@
                                 "workHours": 7
                             }
                         ],
-                        "_id": "6343dde0f06d91a32a7be08f"
+                        "_id": "6343dde0f06d91a32a7be08f",
+                        "note": {
+                            "offHour": 8,
+                            "off": {
+                                "startDay": "2022-10-10",
+                                "endDay": "2022-10-10",
+                                "numOfHours": 8,
+                                "cause": "s",
+                                "days": [1665334800000],
+                                "_id": "6344335766189a6f2f11a1be"
+                            }
+                        },
+                        "sumTimeInDay": 15,
+                        "upTimeInDay": 0,
+                        "missTimeInDay": 465
                     },
                     {
                         "day": 11,
                         "times": [{
                             "startTime": "2022-10-11T12:15:02+07:00",
                             "workPlace": "N",
-                            "isLoading": true,
-                            "_id": "6344fbd641672e0a9e25242c"
+                            "isLoading": false,
+                            "_id": "6344fbd641672e0a9e25242c",
+                            "endTime": "2022-10-11T22:53:00+07:00",
+                            "workHours": 637
                         }],
-                        "_id": "6344fbd041672e0a9e25240a"
+                        "_id": "6344fbd041672e0a9e25240a",
+                        "note": {
+                            "offHour": 4,
+                            "off": {
+                                "startDay": "2022-10-11",
+                                "endDay": "2022-10-11",
+                                "numOfHours": 4,
+                                "cause": "h",
+                                "days": [1665421200000],
+                                "_id": "634436fe1280a804987531bb"
+                            }
+                        },
+                        "sumTimeInDay": 641,
+                        "upTimeInDay": 161,
+                        "missTimeInDay": 0
                     }
                 ],
-                "_id": "6343d64fcce5bfbd62ac280f"
+                "_id": "6343d64fcce5bfbd62ac280f",
+                "sumOffMonthMain": 24,
+                "sumOffMonthSub": 12,
+                "sumTimeInMonth": 656,
+                "numBusinessDay": 21,
+                "weekendOfMonth": 10,
+                "upTimeInMonth": 157.06666666666666,
+                "missTimeInMonth": 0,
+                "salary": 40413333.33333333
             }],
             "_id": "6343d64fcce5bfbd62ac280e"
         }],
-        "isWorking": true,
+        "isWorking": false,
         "userId": "634164bb332181f9acb19a22",
         "__v": 34
     },

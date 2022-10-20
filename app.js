@@ -6,6 +6,7 @@ const path = require('path');
 //import
 const userRouter = require('./routes/userRoute');
 const timeRecordingRouter = require('./routes/timeRecordingRoute');
+const covidRouter = require('./routes/covidRoute');
 //user
 const User = require('./models/userModel');
 
@@ -24,7 +25,7 @@ const url = 'mongodb+srv://thanhlam:thanhlam@cluster0.hatavqh.mongodb.net/NJS101
 
 //User
 app.use((req, res, next) => {
-    User.findById('634164bb332181f9acb19a22')
+    User.findById('634fad699a9320f9f1a3595d')
         .then(user => {
             req.user = user;
             next();
@@ -34,8 +35,8 @@ app.use((req, res, next) => {
 
 //Route
 app.use(userRouter);
-app.use('/user', timeRecordingRouter);
-
+app.use(timeRecordingRouter);
+app.use(covidRouter);
 
 //setup Server port 3001
 mongoose.connect(url)

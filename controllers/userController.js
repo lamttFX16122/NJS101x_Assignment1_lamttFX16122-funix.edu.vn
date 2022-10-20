@@ -1,20 +1,21 @@
 const User = require('../models/userModel');
 const TimeRecording = require('../models/timeRecordingModel');
+const Covid = require('../models/covidModel');
 const moment = require('moment');
 
-exports.getIndex = (req, res, next) => {
-    console.log(req.user)
-    res.render('user/index');
-}
 exports.getAddUser = (req, res, next) => {
-    res.render('user/add-user');
+    res.render('user/add-user', { title: 'Thêm người dùng', isActive: 3 });
 }
 
 exports.postAddUser = (req, res, next) => {
     const timeRecording = new TimeRecording({
-        timeRecording: {},
-        regAnnualleave: {},
+        timeRecording: [],
         isWorking: false
+    })
+    const covid = new Covid({
+        hypothermia: [],
+        vaccine: [],
+        covid: []
     })
     const user = new User({
         name: req.body.username,
@@ -24,12 +25,19 @@ exports.postAddUser = (req, res, next) => {
         department: req.body.department,
         annualLeave: req.body.annualLeave * 8,
         imageUrl: req.body.imageUrl,
-        timeRecordingId: timeRecording._id
+        timeRecordingId: timeRecording._id,
+        covidId: covid._id
     })
+    console.log(covid)
+    console.log(user)
     timeRecording.userId = user._id;
+    covid.userId = user._id;
     user.save()
         .then(result => {
             return timeRecording.save();
+        })
+        .then(result => {
+            return covid.save();
         })
         .then(() => {
             return res.redirect('/');
@@ -39,7 +47,7 @@ exports.postAddUser = (req, res, next) => {
 
 exports.getUserInfo = (req, res, next) => {
     const user = req.user;
-    return res.render('user/user-info', { user: user, moment: moment });
+    return res.render('user/user-info', { user: user, moment: moment, parseHour: parseHour, title: 'Thông tin cá nhân', isActive: 4 });
 }
 exports.postImage = (req, res, next) => {
     req.user.imageUrl = req.body.imageUrl;
@@ -51,34 +59,41 @@ exports.postImage = (req, res, next) => {
 exports.getLookup = (req, res, next) => {
     req.user.populate({ path: 'timeRecordingId' })
         .then(user => {
-            let custom = {...user }
-            custom.ddddddddddddddddddd = 'ddddddddddddddddddd';
-            user.timeRecordingId.timeRecording.forEach((year, i) => {
+            let custom = {...JSON.parse(JSON.stringify(user)) }
+            custom.timeRecordingId.timeRecording.forEach((year, i) => {
                 //Year
+                let totalAnnualOfYear = 0;
                 year.yearItems.forEach((month, j) => {
                     //Month
-                    let sumTimeInMonth = 0;
-                    let sumTimeOffTemp = 0;
-                    let sumTimeOffTempMain = 0; // tinh tam time nghi de tinh thoi gian nghi cua thang
+                    let sumTimeInMonth = 0; // Time cong dồn trong tháng
+                    let sumTimeOffTemp = 0; // Thời gian nghỉ cộng dồn và trừ đi thời gian nghỉ theo giờ để tính lương
+                    let sumTimeOffTempMain = 0; // Tổng thời gian nghỉ trong tháng
+                    let isSumOff = true;
+                    let isNotRecording = true;
                     month.monthItems.forEach((day, k) => {
                         //day
                         let sumTimeInDay = 0;
                         let note = {};
+                        if (!day.times.length > 0) {
+                            isNotRecording = false;
+                        }
                         day.times.forEach(timeItem => {
                                 sumTimeInDay += timeItem.workHours;
-                                // day item
                             })
                             //Check Annual
                         if (month.regAnnualleave.dayOff.length > 0) {
                             month.regAnnualleave.dayOff.forEach(check => { //Loai tru ngay nghi de cong tong gio cua thang
                                 sumTimeOffTemp += check.numOfHours;
-                                sumTimeOffTempMain += check.numOfHours;
+                                if (isSumOff) {
+                                    sumTimeOffTempMain += check.numOfHours;
+                                }
+                                // sumTimeOffTempMain += check.numOfHours;
                                 if (check.numOfHours <= 8 && parseInt(moment(check.days[0]).format('DD')) === day.day) {
                                     // exits ngay nghi theo time hoac 1 ngay
-                                    sumTimeInDay += check.numOfHours;
+                                    sumTimeInDay += check.numOfHours * 60;
                                     note.offHour = check.numOfHours;
                                     note.off = check;
-                                    sumTimeOffTemp -= check.numOfHours
+                                    sumTimeOffTemp -= check.numOfHours;
                                 } else { //if (check.numOfHours > 8) {
                                     check.days.forEach(arrAnnulItem => {
                                         if (parseInt(moment(arrAnnulItem).format('DD')) === day.day) {
@@ -91,8 +106,9 @@ exports.getLookup = (req, res, next) => {
                                 }
                             })
                         }
-                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].note = note;
-                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].sumTimeInDay = sumTimeInDay;
+                        day.note = note;
+                        day.sumTimeInDay = sumTimeInDay;
+
                         let upTimeInDay = 0;
                         let missTimeInDay = 0;
                         if (sumTimeInDay >= 480) // so gio lam lon hon so gio cua 1 ngay (8*60=480 doi ra phut)
@@ -101,43 +117,71 @@ exports.getLookup = (req, res, next) => {
                         } else {
                             missTimeInDay += 480 - sumTimeInDay;
                         }
-                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].upTimeInDay = upTimeInDay;
-                        user.timeRecordingId.timeRecording[i].yearItems[j].monthItems[k].missTimeInDay = missTimeInDay;
+                        day.upTimeInDay = upTimeInDay;
+                        day.missTimeInDay = missTimeInDay;
                         sumTimeInMonth += sumTimeInDay;
+                        day.times.sort((a, b) => {
+                            return moment(b.startTime) - moment(a.startTime);
+                        })
+                        isSumOff = false;
                     })
-                    user.timeRecordingId.timeRecording[i].yearItems[j].sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
-                    user.timeRecordingId.timeRecording[i].yearItems[j].sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
-                    user.timeRecordingId.timeRecording[i].yearItems[j].sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
+                    month.isNotRecording = isNotRecording;
+                    month.sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
+                    month.sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
+                    month.sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
                     let str_yearMonth = `${year.year}-${month.month.toString().length===1?+'0'+month.month.toString(): month.month.toString()}`;
                     const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang
                     const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat
 
-                    user.timeRecordingId.timeRecording[i].yearItems[j].numBusinessDay = numOfMonthTemp - weekendOfMonth; //So ngay duoc tinh cong trong thang
-                    user.timeRecordingId.timeRecording[i].yearItems[j].weekendOfMonth = weekendOfMonth;
+                    month.numBusinessDay = numOfMonthTemp - weekendOfMonth; //So ngay duoc tinh cong trong thang
+                    month.weekendOfMonth = weekendOfMonth;
                     //Thoi gian tang ca cua thang
-                    let upTimeInMonth = (((numOfMonthTemp - weekendOfMonth) * 8) - (sumTimeInMonth / 60)) >= 0 ? (((numOfMonthTemp - weekendOfMonth) * 8) - (sumTimeInMonth / 60)) : 0;
-                    user.timeRecordingId.timeRecording[i].yearItems[j].upTimeInMonth = upTimeInMonth;
+                    let upTimeInMonth = (sumTimeInMonth - ((numOfMonthTemp - weekendOfMonth) * 8) * 60) >= 0 ? sumTimeInMonth - ((numOfMonthTemp - weekendOfMonth) * 8) * 60 : 0;
+                    month.upTimeInMonth = upTimeInMonth;
                     //Thoi gian thieu cua thang
-                    let missTimeInMonth = ((sumTimeInMonth / 60) - ((numOfMonthTemp - weekendOfMonth) * 8)) >= 0 ? ((sumTimeInMonth / 60) - ((numOfMonthTemp - weekendOfMonth) * 8)) : 0;
-                    user.timeRecordingId.timeRecording[i].yearItems[j].missTimeInMonth = missTimeInMonth;
+                    let missTimeInMonth = (((numOfMonthTemp - weekendOfMonth) * 8) * 60 - sumTimeInMonth) >= 0 ? (((numOfMonthTemp - weekendOfMonth) * 8) * 60 - sumTimeInMonth) : 0;
+                    month.missTimeInMonth = missTimeInMonth;
                     //Lương tháng
                     let salary = req.user.salaryScale * 3000000 + (upTimeInMonth - missTimeInMonth) * 200000;
-                    user.timeRecordingId.timeRecording[i].yearItems[j].salary = salary;
+                    if (moment() > moment(str_yearMonth).endOf('month')) {
+                        month.salary = salary;
+                    } else {
+                        month.salary = "Chưa kết tháng";
+                    }
+                    totalAnnualOfYear += sumTimeOffTempMain;
+                    month.monthItems.sort((a, b) => {
+                        return b.day - a.day;
+                    })
                 })
+                year.yearItems.sort((a, b) => {
+                    return b.month - a.month;
+                })
+                year.totalAnnualOfYear = totalAnnualOfYear;
             })
 
-            console.log(JSON.stringify(user));
-            console.log(custom._doc.timeRecordingId);
+            //  console.log(JSON.stringify(custom));
+
+
+            return res.render('user/lookup', { data: custom, moment: moment, parseHour: parseHour, title: 'Tra cứu thông tin', isActive: 5 })
         })
         .catch(err => console.log(err));
 
 }
 
 exports.getTest = (req, res, next) => {
-    // console.log('--------------------: ', numWeekendOfMonth('2022-10'));
-    const a = 2;
-    //console.log(a.toString().length)
-    console.log(moment(`2022-${a.toString().length===1?+'0'+a.toString():a.toString()}`).daysInMonth())
+    const id = '634fcfcb470f4935c0fcec1c';
+    const start = '2022-10-21';
+
+    TimeRecording.updateOne({
+            _id: req.user.timeRecordingId //,
+                // 'timeRecording.$.year': parseInt(moment(start).format('YYYY')),
+                // 'timeRecording.$.yearItems.$.month': parseInt(moment(start).format('MM')),
+        }, { $pull: { 'timeRecording.$.yearItems.$.regAnnualleave.dayOff': { _id: id } } }, { new: true })
+        .then(result => {
+            console.log(result)
+                //  res.redirect('/info-covid');
+        })
+        .catch(err => console.log(err));
 }
 
 function numWeekendOfMonth(monthYear) { //Return number (Sunday and Saturday)
@@ -151,4 +195,33 @@ function numWeekendOfMonth(monthYear) { //Return number (Sunday and Saturday)
         firstDayOfMonth.add(1, 'days');
     }
     return temp;
+}
+
+function parseHour(hour, type) {
+    let result = '';
+    //minutes to hour
+    if (type === 0) {
+        if (hour === 0) {
+            result += hour + ' phút';
+        } else {
+            if (parseInt(hour / 60) > 0) {
+                result += parseInt(hour / 60).toString() + ' giờ '
+            }
+            if (parseInt(hour % 60) > 0) {
+                result += parseInt(hour % 60).toString() + ' phút'
+            }
+        }
+    } else {
+        if (hour === 0) {
+            result += hour + ' giờ';
+        }
+        if (parseInt(hour / 8) > 0) {
+            result += parseInt(hour / 8).toString() + ' ngày ';
+        }
+        if (parseInt(hour % 8) > 0) {
+            result += parseInt(hour % 8).toString() + ' giờ ';
+        }
+        // result = hour / 8 > 0 ? parseInt(hour / 8).toString() + ' ngày' : '' + (hour % 8) > 0 ? (hour / 8).toString() + ' giờ' : '';
+    }
+    return result;
 }
