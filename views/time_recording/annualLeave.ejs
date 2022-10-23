@@ -65,7 +65,7 @@
                             </thead>
                             <tbody>
                                 <%let count=0%>
-                                    <%annualLeave.yearItems.forEach((value) => {%>
+                                    <%annualLeave.yearItems.sort((a,b)=>b.month-a.month).forEach((value) => {%>
                                         <tr>
                                             <th scope="row" colspan="6">Tháng
                                                 <%=value.month%>

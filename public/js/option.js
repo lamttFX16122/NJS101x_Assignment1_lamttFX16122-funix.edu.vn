@@ -104,11 +104,102 @@ $(document).ready(() => {
     })
 
     $('#annual-clear').click(() => {
-        $('#annualLeave').val('')
-        $('#startDate').val(moment().format('YYYY-MM-DD'));
-        $('#endDate').val(moment().format('YYYY-MM-DD'));
-        $('#floatingTextarea').val('');
-        $('#txt_id_annual').val('');
-        $('#annual-submit').text("Đăng ký")
-    })
+            $('#annualLeave').val('')
+            $('#startDate').val(moment().format('YYYY-MM-DD'));
+            $('#endDate').val(moment().format('YYYY-MM-DD'));
+            $('#floatingTextarea').val('');
+            $('#txt_id_annual').val('');
+            $('#annual-submit').text("Đăng ký")
+        })
+        // ========================== LOOKUP===============================
+        // var temp;
+        // $('#frm-search').submit(e => {
+        //     e.preventDefault();
+        //     const txt = $('#timeRecordSearch').val();
+        //     // temp = $('#tesst').html();
+        //     $('#tesst').empty();
+        //     $.ajax({
+        //         url: '/lookupAjax',
+        //         type: 'GET',
+        //         dataType: 'json',
+        //         success: (data) => {
+        //             let fil = [];
+        //             data.timeRecordingId.timeRecording[0].yearItems.forEach((month, index) => {
+        //                 let isFil = month.monthItems.filter(i => {
+        //                     return i.day.toString().includes(txt);
+        //                 })
+        //                 if (isFil.length > 0) {
+        //                     data.timeRecordingId.timeRecording[0].yearItems[index] = isFil;
+        //                 }
+
+    //             })
+    //             let str = '';
+    //             console.log(data.timeRecordingId.timeRecording[0])
+    //             data.timeRecordingId.timeRecording[0].yearItems.forEach(m => {
+    //                 // if (m.isNotRecording) {
+    //                 str += `<div class = "d-flex align-items-center justify-content-between mb-4">
+    //                         <div class = "mb-0" ><h6> Danh sách tháng ${m.month} </h6> 
+    //                         <ul class = "list-group list-group-flush align-items-start" >
+    //                         <li class = "list-group-item bg-secondary border-0" > Thời gian đã làm:
+    //                         ${m.sumTimeInMonth?parseHour(m.sumTimeInMonth,0):'Chưa kết thúc'} </li> 
+    //                         <li class = "list-group-item bg-secondary border-0"> 
+    //                         Thời gian nghỉ đã đăng ký: ${parseHour(m.sumOffMonthMain,1)} </li> 
+    //                         <li class = "list-group-item bg-secondary border-0" > 
+    //                         Thời gian bắt buộc của tháng: ${m.numBusinessDay} ngày~(${m.numBusinessDay*8} giờ) </li> 
+    //                         </ul> 
+    //                         </div>`
+    //                     // }
+    //             })
+    //             $('#tesst').html(str);
+
+    //         }
+    //     })
+    // })
+    // $('#pastHtml').click(() => {
+    //     $('#tesst').html("<%=year.year%>");
+    // })
+
+
+
+
+
+    // $('#timeRecordSearch')
+    // $.ajax({
+    //     url: url,
+    //     dataType: "json",
+    //     type: "Post",
+    //     async: true,
+    //     data: { },
+    //     success: function (data) {
+
+    //     },
 })
+
+function parseHour(hour, type) {
+    let result = "";
+    //minutes to hour
+    if (type === 0) {
+        if (hour === 0) {
+            result += hour + " phút";
+        } else {
+            if (parseInt(hour / 60) > 0) {
+                result += parseInt(hour / 60).toString() + " giờ ";
+            }
+            if (parseInt(hour % 60) > 0) {
+                result += parseInt(hour % 60).toString() + " phút";
+            }
+        }
+    } else {
+        if (hour === 0) {
+            result += hour + " giờ";
+        }
+        if (parseInt(hour / 8) > 0) {
+            result += parseInt(hour / 8).toString() + " ngày ";
+        }
+        if (parseInt(hour % 8) > 0) {
+            result += parseInt(hour % 8).toString() + " giờ ";
+        }
+        // result = hour / 8 > 0 ? parseInt(hour / 8).toString() + ' ngày' : '' + (hour % 8) > 0 ? (hour / 8).toString() + ' giờ' : '';
+    }
+    return result;
+}

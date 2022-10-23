@@ -1,7 +1,6 @@
 const TimeRecording = require("../models/timeRecordingModel");
 const User = require("../models/userModel");
 const moment = require("moment");
-const { json } = require("express/lib/response");
 
 //Man hinh cham cong
 exports.getTimeRecording = (req, res, next) => {
@@ -153,11 +152,9 @@ exports.postStartTime = (req, res, next) => {
             const indexYears = t.timeRecording.findIndex((x) => {
                 return x.year === parseInt(moment().format("YYYY"));
             });
-            const indexMonth = t.timeRecording[indexYears].yearItems.findIndex(
-                (y) => {
-                    return y.month === parseInt(moment().format("MM"));
-                }
-            );
+            const indexMonth = t.timeRecording[indexYears].yearItems.findIndex((y) => {
+                return y.month === parseInt(moment().format("MM"));
+            });
             const indexDay = t.timeRecording[indexYears].yearItems[
                 indexMonth
             ].monthItems.findIndex((z) => {
