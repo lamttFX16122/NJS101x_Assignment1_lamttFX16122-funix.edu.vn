@@ -4,16 +4,31 @@
             <!-- Content -->
 
             <!-- ----------------------------------------------------------------------------------------------------------- -->
-            <div class="container-fluid pt-4 px-4">
+            <div class="container-fluid pt-4 px-4 lookup-page">
                 <div class="row g-4">
                     <div class="col-sm-12 col-xl-12">
-                        <div class="bg-secondary text-center rounded p-4">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h6 class="mb-0">Thông tin chung</h6>
-                                <a href="">Show All</a>
+                        <div class="bg-secondary text-center rounded p-2">
+                            <div class="d-flex justify-content-start my-1">
+                                <div class="col-9 detail-salary">
+                                    <!-- Thông tin render js -->
+                                </div>
+                                <div class="col-3 d-flex flex-wrap align-self-start my-1 px-1">
+                                    <label for="salary-option">Lương tháng</label>
+                                    <select class="form-select form-select-sm mb-3" id="salary-option" aria-label=".form-select-sm example">
+                                        <option value="0">Chọn tháng ...</option>
+                                        <%data.timeRecordingId.timeRecording.forEach(year=>{%>
+                                            <%year.yearItems.forEach(month=>{%>
+                                                <%if(month.isNotRecording){%>
+                                                <option value="<%=`${month.month}-${year.year}`%>"><%=`${month.month}-${year.year}`%></option>
+                                                <%}%>
+                                            <%})%>
+                                        <%})%>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -75,19 +90,13 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                                    <!-- <div class="bg-secondary text-center rounded p-4"> -->
 
-                                    <!-- </div> -->
                                     <div class="bg-secondary text-center rounded p-4">
                                         <%data.timeRecordingId.timeRecording.forEach(year=>{%>
                                             <div class="d-flex align-items-center justify-content-between mb-4">
                                                 <h6 class="mb-0">Danh sách điểm danh năm
                                                     <%=year.year%>
                                                 </h6>
-                                                <button class="btn btn-primary" id="pastHtml">click</button>
-                                                <form class="d-none d-md-flex ms-4" id="frm-search">
-                                                    <input class="form-control bg-dark border-0" type="search" id="timeRecordSearch" placeholder="Search">
-                                                </form>
                                             </div>
                                             <hr>
                                             <div id="tesst">
@@ -119,7 +128,7 @@
                                                                         <%=parseHour(month.missTimeInMonth,0)%>
                                                                     </li>
                                                                     <li class="list-group-item bg-secondary border-0">Lương:
-                                                                        <%=month.salary%>
+                                                                        <%=changeMoney(month.salary)%>
                                                                     </li>
                                                                 </ul>
                                                             </div>
@@ -194,7 +203,7 @@
                             </div>
                     
                             <div class="modal-body">  
-                                    <ul class="list-group list-group-flush align-items-start"><!--align-items-start-->
+                                    <ul class="list-group list-group-flush align-items-start">
                                         <li class="list-group-item bg-secondary border-0">Từ ngày: <%=moment(day.note.off.startDay).format('DD/MM/YYYY')%></li>
                                         <li class="list-group-item bg-secondary border-0">Đến ngày: <%=moment(day.note.off.endDay).format('DD/MM/YYYY')%></li>
                                         <li class="list-group-item bg-secondary border-0">Số ngày/giờ nghỉ: <%=parseHour(day.note.off.numOfHours,1)%></li>
@@ -319,7 +328,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ================================================ -->
                     </div>
                     <!-- Danh sách đăng ký nghỉ -->
 

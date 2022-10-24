@@ -41,7 +41,7 @@ const userSchema = new Schema({
 
 });
 
-userSchema.methods.updateAnnual = function(numHour) {
+userSchema.methods.updateAnnual = function(numHour) { //Update ngày nghỉ
     this.annualLeave = numHour;
     return this.save();
 }

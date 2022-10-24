@@ -3,11 +3,11 @@ const Schema = mongoose.Schema;
 
 const timeRecordingSchema = new Schema({
     timeRecording: [{
-        year: { type: Number }, //2022
+        year: { type: Number }, //Năm
         yearItems: [{
-            month: { type: Number }, //10
+            month: { type: Number },
             monthItems: [{
-                day: { type: Number }, //08
+                day: { type: Number },
                 times: [{
                     startTime: {
                         type: String
@@ -26,7 +26,7 @@ const timeRecordingSchema = new Schema({
                     }
                 }]
             }],
-            regAnnualleave: {
+            regAnnualleave: { // Ngày nghỉ
                 dayOff: [{
                     startDay: {
                         type: String
@@ -49,8 +49,14 @@ const timeRecordingSchema = new Schema({
 
     }],
 
-    isWorking: {
+    isWorking: { //Trạng thái làm việc
         type: Boolean
+    },
+    previousTime: { // index phiên làm việc
+        timeRecording: { type: String },
+        yearItems: { type: String },
+        monthItems: { type: String },
+        times: { type: String }
     },
     userId: {
         type: Schema.Types.ObjectId,

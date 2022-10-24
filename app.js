@@ -25,7 +25,7 @@ const url = 'mongodb+srv://thanhlam:thanhlam@cluster0.hatavqh.mongodb.net/NJS101
 
 //User
 app.use((req, res, next) => {
-    User.findById('634fad699a9320f9f1a3595d')
+    User.findById('6356720692877e71431772a7')
         .then(user => {
             req.user = user;
             next();

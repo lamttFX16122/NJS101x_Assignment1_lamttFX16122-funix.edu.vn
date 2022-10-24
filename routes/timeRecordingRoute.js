@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const timeRecordingController = require('../controllers/timeRecordingController');
 
-
 router.get('/', timeRecordingController.getTimeRecording);
 router.get('/time-recording', timeRecordingController.getTimeRecording);
 router.get('/start-time', timeRecordingController.getStartTime);

@@ -3,20 +3,22 @@ const TimeRecording = require("../models/timeRecordingModel");
 const Covid = require("../models/covidModel");
 const moment = require("moment");
 
+//get Thêm user
 exports.getAddUser = (req, res, next) => {
-    res.render("user/add-user", { title: "Thêm người dùng", isActive: 3 });
+    res.render("user/add-user", { title: "Thêm người dùng", name: req.user.name, isActive: 3 });
 };
-
+//Thêm User
 exports.postAddUser = (req, res, next) => {
     const timeRecording = new TimeRecording({
         timeRecording: [],
         isWorking: false,
-    });
+        previousTime: {}
+    }); //setup timeRecording
     const covid = new Covid({
         hypothermia: [],
         vaccine: [],
         covid: [],
-    });
+    }); //Setup Covid
     const user = new User({
         name: req.body.username,
         doB: req.body.doB,
@@ -27,9 +29,7 @@ exports.postAddUser = (req, res, next) => {
         imageUrl: req.body.imageUrl,
         timeRecordingId: timeRecording._id,
         covidId: covid._id,
-    });
-    console.log(covid);
-    console.log(user);
+    }); // setup user từ form
     timeRecording.userId = user._id;
     covid.userId = user._id;
     user
@@ -46,6 +46,7 @@ exports.postAddUser = (req, res, next) => {
         .catch((err) => console.log(err));
 };
 
+//Thông tin cá nhân
 exports.getUserInfo = (req, res, next) => {
     const user = req.user;
     return res.render("user/user-info", {
@@ -53,9 +54,11 @@ exports.getUserInfo = (req, res, next) => {
         moment: moment,
         parseHour: parseHour,
         title: "Thông tin cá nhân",
+        name: req.user.name,
         isActive: 4,
     });
 };
+//Thay đổi hình ảnh
 exports.postImage = (req, res, next) => {
     req.user.imageUrl = req.body.imageUrl;
     req.user.save();
@@ -65,28 +68,26 @@ exports.postImage = (req, res, next) => {
 //Tra cuu thong tin
 exports.getLookup = (req, res, next) => {
     req.user
-        .populate({ path: "timeRecordingId" })
+        .populate({ path: "timeRecordingId" }) // trả về timeRecording
         .then((user) => {
-            let custom = {...JSON.parse(JSON.stringify(user)) };
+            let custom = {...JSON.parse(JSON.stringify(user)) }; // custom thành mảng thay đổi được
             custom.timeRecordingId.timeRecording.forEach((year, i) => {
                 //Year
-                let totalAnnualOfYear = 0;
+                let totalAnnualOfYear = 0; //tong so ngay nghi cua nam
                 year.yearItems.forEach((month, j) => {
                     //Month
                     let sumTimeInMonth = 0; // Time cong dồn trong tháng
                     let sumTimeOffTemp = 0; // Thời gian nghỉ cộng dồn và trừ đi thời gian nghỉ theo giờ để tính lương
                     let sumTimeOffTempMain = 0; // Tổng thời gian nghỉ trong tháng
-                    let isSumOff = true;
-                    let isNotRecording = true;
+                    let isSumOff = true; //Check có ngày nghỉ hay k
+                    let isNotRecording = 0; // Nếu là ngày nghỉ trước ngày hiện tại thì isNotRecording=0
                     month.monthItems.forEach((day, k) => {
                         //day
-                        let sumTimeInDay = 0;
+                        let sumTimeInDay = 0; //tổng thời gian làm của ngày
                         let note = {};
-                        if (!day.times.length > 0) {
-                            isNotRecording = false;
-                        }
                         day.times.forEach((timeItem) => {
-                            sumTimeInDay += timeItem.workHours;
+                            sumTimeInDay += timeItem.workHours; // Cộng dồn thời gian của ngày
+                            isNotRecording++; // => là ngày làm 
                         });
                         //Check Annual
                         if (month.regAnnualleave.dayOff.length > 0) {
@@ -96,23 +97,20 @@ exports.getLookup = (req, res, next) => {
                                 if (isSumOff) {
                                     sumTimeOffTempMain += check.numOfHours;
                                 }
-                                // sumTimeOffTempMain += check.numOfHours;
-                                if (
-                                    check.numOfHours <= 8 &&
+                                if (check.numOfHours <= 8 &&
                                     parseInt(moment(check.days[0]).format("DD")) === day.day
                                 ) {
-                                    // exits ngay nghi theo time hoac 1 ngay
+                                    //Nghỉ theo gio
                                     sumTimeInDay += check.numOfHours * 60;
                                     note.offHour = check.numOfHours;
                                     note.off = check;
                                     sumTimeOffTemp -= check.numOfHours;
                                 } else {
-                                    //if (check.numOfHours > 8) {
                                     check.days.forEach((arrAnnulItem) => {
                                         if (
                                             parseInt(moment(arrAnnulItem).format("DD")) === day.day
                                         ) {
-                                            sumTimeInDay += 8;
+                                            sumTimeInDay += 8; // Cộng vào thời gian làm 
                                             note.offHour = 8;
                                             note.off = check;
                                             sumTimeOffTemp -= 8;
@@ -121,11 +119,11 @@ exports.getLookup = (req, res, next) => {
                                 }
                             });
                         }
-                        day.note = note;
+                        day.note = note; // thông tin xem chi tiết nếu có ngày nghỉ
                         day.sumTimeInDay = sumTimeInDay;
 
-                        let upTimeInDay = 0;
-                        let missTimeInDay = 0;
+                        let upTimeInDay = 0; // Thời gian tăng ca trong ngày (thời gian làm > 8 giờ)
+                        let missTimeInDay = 0; // Thời gian thiếu trong ngày
                         if (sumTimeInDay >= 480) {
                             // so gio lam lon hon so gio cua 1 ngay (8*60=480 doi ra phut)
                             upTimeInDay += sumTimeInDay - 480;
@@ -140,19 +138,18 @@ exports.getLookup = (req, res, next) => {
                         });
                         isSumOff = false;
                     });
-                    month.isNotRecording = isNotRecording;
-                    month.sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
+                    month.isNotRecording = isNotRecording > 0 ? true : false;
+                    month.sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru de cộng cho số ngày nghỉ của năm
                     month.sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
                     month.sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
-                    let str_yearMonth = `${year.year}-${
-            month.month.toString().length === 1
-              ? +"0" + month.month.toString()
-              : month.month.toString()
-          }`;
-                    const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang
-                    const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat
 
-                    month.numBusinessDay = numOfMonthTemp - weekendOfMonth; //So ngay duoc tinh cong trong thang
+                    //Thay đổi định dạng cho ngày tháng... 1=>01 /// 
+                    let str_yearMonth = `${year.year}-${month.month.toString().length === 1? +"0" + month.month.toString(): month.month.toString()}`;
+
+                    const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang 2=>28 ngày
+                    const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat của tháng
+
+                    month.numBusinessDay = numOfMonthTemp - weekendOfMonth; //So ngay duoc tinh cong trong thang=this-(7, cn)
                     month.weekendOfMonth = weekendOfMonth;
                     //Thoi gian tang ca cua thang
                     let upTimeInMonth =
@@ -167,17 +164,15 @@ exports.getLookup = (req, res, next) => {
                         0;
                     month.missTimeInMonth = missTimeInMonth;
                     //Lương tháng
-                    let salary =
-                        req.user.salaryScale * 3000000 +
-                        (upTimeInMonth - missTimeInMonth) * 200000;
+                    let salary = req.user.salaryScale * 3000000 + ((upTimeInMonth / 60) - (missTimeInMonth / 60)) * 200000;
                     if (moment() > moment(str_yearMonth).endOf("month")) {
                         month.salary = salary;
                     } else {
                         month.salary = "Chưa kết tháng";
                     }
-                    totalAnnualOfYear += sumTimeOffTempMain;
+                    totalAnnualOfYear += sumTimeOffTempMain; //tong so ngay nghi cua nam
                     month.monthItems.sort((a, b) => {
-                        return b.day - a.day;
+                        return b.day - a.day; //sắp xếp giảm dần theo ngày
                     });
                 });
                 year.yearItems.sort((a, b) => {
@@ -186,25 +181,25 @@ exports.getLookup = (req, res, next) => {
                 year.totalAnnualOfYear = totalAnnualOfYear;
             });
 
-            // console.log(JSON.stringify(custom));
-
             return res.render("user/lookup", {
                 data: custom,
                 moment: moment,
                 parseHour: parseHour,
+                changeMoney: changeMoney,
                 title: "Tra cứu thông tin",
+                name: req.user.name,
                 isActive: 5,
             });
         })
         .catch((err) => console.log(err));
 };
+
+//sử dụng cho Chọn xem lương tháng get từ Ajax
 exports.getLookupAjax = (req, res, next) => {
     req.user
         .populate({ path: "timeRecordingId" })
         .then((user) => {
             let custom = {...JSON.parse(JSON.stringify(user)) };
-            const txt = 'j' //req.body.txt;
-
             custom.timeRecordingId.timeRecording.forEach((year, i) => {
                 //Year
                 let totalAnnualOfYear = 0;
@@ -214,16 +209,14 @@ exports.getLookupAjax = (req, res, next) => {
                     let sumTimeOffTemp = 0; // Thời gian nghỉ cộng dồn và trừ đi thời gian nghỉ theo giờ để tính lương
                     let sumTimeOffTempMain = 0; // Tổng thời gian nghỉ trong tháng
                     let isSumOff = true;
-                    let isNotRecording = true;
+                    let isNotRecording = 0;
                     month.monthItems.forEach((day, k) => {
                         //day
                         let sumTimeInDay = 0;
                         let note = {};
-                        if (!day.times.length > 0) {
-                            isNotRecording = false;
-                        }
                         day.times.forEach((timeItem) => {
                             sumTimeInDay += timeItem.workHours;
+                            isNotRecording++;
                         });
                         //Check Annual
                         if (month.regAnnualleave.dayOff.length > 0) {
@@ -277,7 +270,7 @@ exports.getLookupAjax = (req, res, next) => {
                         });
                         isSumOff = false;
                     });
-                    month.isNotRecording = isNotRecording;
+                    month.isNotRecording = isNotRecording > 0 ? true : false;
                     month.sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
                     month.sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
                     month.sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
@@ -304,9 +297,8 @@ exports.getLookupAjax = (req, res, next) => {
                         0;
                     month.missTimeInMonth = missTimeInMonth;
                     //Lương tháng
-                    let salary =
-                        req.user.salaryScale * 3000000 +
-                        (upTimeInMonth - missTimeInMonth) * 200000;
+
+                    let salary = req.user.salaryScale * 3000000 + ((upTimeInMonth / 60) - (missTimeInMonth / 60)) * 200000;
                     if (moment() > moment(str_yearMonth).endOf("month")) {
                         month.salary = salary;
                     } else {
@@ -322,53 +314,19 @@ exports.getLookupAjax = (req, res, next) => {
                 });
                 year.totalAnnualOfYear = totalAnnualOfYear;
             });
-
-            // console.log(JSON.stringify(custom));
-            custom.timeRecordingId.timeRecording[0].yearItems.forEach(month => {
-
-                month.monthItems.forEach((day, f) => {
-                    let arrTemp = [];
-                    let temp = day.times.filter(item => {
-                        if (item.endTime && item.workHours) {
-                            return item.startTime.toString().includes(txt) ||
-                                item.endTime.toString().includes(txt) ||
-                                item.workHours.toString().includes(txt) ||
-                                item.workPlace.toString().includes(txt)
-                        } else {
-                            return item.startTime.toString().includes(txt) ||
-                                item.workPlace.toString().includes(txt)
-                        }
-
-                    })
-                    if (temp && temp.length > 0) {
-                        arrTemp.push(temp);
-                    }
-                    if (arrTemp.length > 0) {
-                        day.times = temp;
-                    } else {
-                        month.monthItems[f] = [];
-                    }
-                })
-
-            })
-
-            // return res.send(custom);
-            return res.render("user/lookup", {
-                data: custom,
-                moment: moment,
-                parseHour: parseHour,
-                title: "Tra cứu thông tin",
-                isActive: 5,
-            });
+            return res.send(custom);
         })
         .catch((err) => console.log(err));
 };
+
+// Insert data phiên làm việc
 exports.getTest = async(req, res, next) => {
-    const arr = ['15:00', '14:00', '16:00', '16:30', '14:30'];
+    const arr = ['15:00', '14:00', '16:00', '16:30', '14:30']; // Random giờ end khác nhau 
     for (let g = 1; g < 10; g++) {
-        let monthYear = `2022-0${g}`;
-        let firstDayOfMonth = moment(monthYear).startOf("month");
-        let end = moment(monthYear).endOf("month");
+        let monthYear = `2022-0${g}`; // Nối chuổi tháng tăng dần 1=>9
+
+        let firstDayOfMonth = moment(monthYear).startOf("month"); //ngày đâu tiên của tháng
+        let end = moment(monthYear).endOf("month"); //Ngày cuối cùng của tháng
 
         while (firstDayOfMonth <= end) {
             const workPlace = 'Công ty';
@@ -378,12 +336,9 @@ exports.getTest = async(req, res, next) => {
                         firstDayOfMonth.format("dddd") != "Sunday" &&
                         firstDayOfMonth.format("dddd") != "Saturday"
                     ) {
+                        let a = moment(firstDayOfMonth.format('YYYY-MM-DD') + ' ' + '07:00'); //Mặc đinh bắt đầu lúc 7h
+                        let b = moment(firstDayOfMonth.format('YYYY-MM-DD') + ' ' + arr[Math.floor(Math.random() * arr.length)]); // Giờ kết thúc Random
 
-                        // console.log(firstDayOfMonth)
-                        let a = moment(firstDayOfMonth.format('YYYY-MM-DD') + ' ' + '07:00');
-                        let b = moment(firstDayOfMonth.format('YYYY-MM-DD') + ' ' + arr[Math.floor(Math.random() * arr.length)]);
-                        console.log(b)
-                        console.log('=====', b.diff(a, "minutes"))
                         let item = {};
                         const indexYears = t.timeRecording.findIndex((x) => {
                             return x.year === parseInt(firstDayOfMonth.format("YYYY"));
@@ -400,12 +355,8 @@ exports.getTest = async(req, res, next) => {
                         item.startTime = a.format();
                         item.workPlace = workPlace;
                         item.isLoading = false;
-
-                        // const endtime = moment();
                         item.endTime = b.format();
                         item.workHours = b.diff(a, "minutes")
-
-
                         let times = [
                             ...t.timeRecording[indexYears].yearItems[indexMonth].monthItems[
                                 indexDay
@@ -415,22 +366,19 @@ exports.getTest = async(req, res, next) => {
                         t.timeRecording[indexYears].yearItems[indexMonth].monthItems[
                             indexDay
                         ].times = times;
-
-                        // t.isWorking = !t.isWorking;
+                        console.log('OK')
                         return t.save();
-
                     }
-                })
-                .then((result) => {
-                    //return res.redirect("/time-recording");
                 })
                 .catch((err) => console.log(err));
 
-            firstDayOfMonth.add(1, "days");
+            firstDayOfMonth.add(1, "days"); //tăng ngày lên
         }
     }
 };
 
+
+// Insert khung ngày tháng
 exports.getTestSetUp = async(req, res, next) => {
     for (let g = 1; g < 10; g++) {
         let monthYear = `2022-0${g}`;
@@ -536,8 +484,8 @@ exports.getTestSetUp = async(req, res, next) => {
     }
 };
 
+//Func số ngày nghỉ của tháng... trả về tổng số ngày thứ 7 và chủ nhật của tháng
 function numWeekendOfMonth(monthYear) {
-    //Return number (Sunday and Saturday)
     let firstDayOfMonth = moment(monthYear).startOf("month");
     let end = moment(monthYear).endOf("month");
     let temp = 0;
@@ -553,9 +501,9 @@ function numWeekendOfMonth(monthYear) {
     return temp;
 }
 
+//Chuyen doi thoi gian phut=> gio (type==0)|| gio=> ngày ((type==1))
 function parseHour(hour, type) {
     let result = "";
-    //minutes to hour
     if (type === 0) {
         if (hour === 0) {
             result += hour + " phút";
@@ -577,7 +525,44 @@ function parseHour(hour, type) {
         if (parseInt(hour % 8) > 0) {
             result += parseInt(hour % 8).toString() + " giờ ";
         }
-        // result = hour / 8 > 0 ? parseInt(hour / 8).toString() + ' ngày' : '' + (hour % 8) > 0 ? (hour / 8).toString() + ' giờ' : '';
     }
     return result;
+}
+
+//Func trả về lương theo định dạng tiền VNĐ=> 7.000.000
+function changeMoney(money) {
+    let x = '';
+    if (typeof(money) == 'number') {
+        money = money.toString();
+        let mod = parseInt(money.length) % 3; // 1
+        let sub = parseInt(money.length) / 3; // 2
+
+        if (money.length > 3) {
+            if (mod > 0) {
+                x += money.substr(0, mod);
+                for (let i = 1; i <= sub; i++) {
+                    x += '.' + money.substr(mod, 3)
+                    mod += 3;
+                }
+                x += ' VNĐ'
+            } else {
+                for (let i = 1; i <= sub; i++) {
+                    if (i == 1) {
+                        x += money.substr(mod, mod + 3)
+                        mod += 3;
+                    } else {
+                        x += '.' + money.substr(mod, 3)
+                        mod += 2;
+                    }
+
+                }
+                x += ' VNĐ'
+            }
+        } else {
+            x += money + ' VNĐ';
+        }
+    } else {
+        x += money;
+    }
+    return x.trim();
 }

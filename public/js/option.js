@@ -112,68 +112,102 @@ $(document).ready(() => {
             $('#annual-submit').text("Đăng ký")
         })
         // ========================== LOOKUP===============================
-        // var temp;
-        // $('#frm-search').submit(e => {
-        //     e.preventDefault();
-        //     const txt = $('#timeRecordSearch').val();
-        //     // temp = $('#tesst').html();
-        //     $('#tesst').empty();
-        //     $.ajax({
-        //         url: '/lookupAjax',
-        //         type: 'GET',
-        //         dataType: 'json',
-        //         success: (data) => {
-        //             let fil = [];
-        //             data.timeRecordingId.timeRecording[0].yearItems.forEach((month, index) => {
-        //                 let isFil = month.monthItems.filter(i => {
-        //                     return i.day.toString().includes(txt);
-        //                 })
-        //                 if (isFil.length > 0) {
-        //                     data.timeRecordingId.timeRecording[0].yearItems[index] = isFil;
-        //                 }
+    let data;
+    $('.lookup-page').ready(() => {
+        $.ajax({
+            url: '/lookupAjax',
+            dataType: 'Json',
+            type: 'GET',
+            data: {},
+            success: (result) => {
+                data = result;
+            }
+        })
+    })
+    $('#salary-option').change(() => {
+        const fil = $('#salary-option').val().split('-');
+        if (fil == 0) {
+            $('.detail-salary').empty();
+            $('.detail-salary').removeClass('border-end');
+        } else {
+            const yearIndex = data.timeRecordingId.timeRecording.findIndex(year => {
+                return year.year.toString() === fil[1];
+            })
+            const result = data.timeRecordingId.timeRecording[yearIndex].yearItems.filter((month) => {
+                return month.month.toString() === fil[0];
+            })
 
-    //             })
-    //             let str = '';
-    //             console.log(data.timeRecordingId.timeRecording[0])
-    //             data.timeRecordingId.timeRecording[0].yearItems.forEach(m => {
-    //                 // if (m.isNotRecording) {
-    //                 str += `<div class = "d-flex align-items-center justify-content-between mb-4">
-    //                         <div class = "mb-0" ><h6> Danh sách tháng ${m.month} </h6> 
-    //                         <ul class = "list-group list-group-flush align-items-start" >
-    //                         <li class = "list-group-item bg-secondary border-0" > Thời gian đã làm:
-    //                         ${m.sumTimeInMonth?parseHour(m.sumTimeInMonth,0):'Chưa kết thúc'} </li> 
-    //                         <li class = "list-group-item bg-secondary border-0"> 
-    //                         Thời gian nghỉ đã đăng ký: ${parseHour(m.sumOffMonthMain,1)} </li> 
-    //                         <li class = "list-group-item bg-secondary border-0" > 
-    //                         Thời gian bắt buộc của tháng: ${m.numBusinessDay} ngày~(${m.numBusinessDay*8} giờ) </li> 
-    //                         </ul> 
-    //                         </div>`
-    //                     // }
-    //             })
-    //             $('#tesst').html(str);
+            let str = `<h3>Lương tháng ${$('#salary-option').val()}</h3><div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="mb-0">
+                <ul class="list-group list-group-flush align-items-start">
+                    <li class="list-group-item bg-secondary border-0">Thời gian đã làm :
+                      ${result[0].sumTimeInMonth ? parseHour(result[0].sumTimeInMonth,0):'Chưa kết thúc'}
+                    </li>
+                    <li class="list-group-item bg-secondary border-0">Thời gian nghỉ đã đăng ký:
+                      ${parseHour(result[0].sumOffMonthMain,1)}
+                    </li>
+                    <li class="list-group-item bg-secondary border-0">Thời gian bắt buộc của tháng:
+                      ${result[0].numBusinessDay} ngày ~ (${result[0].numBusinessDay*8} giờ)
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul class="list-group list-group-flush align-items-start">
+                    <li class="list-group-item bg-secondary border-0">Thời gian tăng ca:
+                       ${parseHour(result[0].upTimeInMonth,0)}
+                    </li>
+                    <li class="list-group-item bg-secondary border-0">Thời gian làm thiếu:
+                       ${parseHour(result[0].missTimeInMonth,0)}
+                    </li>
+                    <li class="list-group-item bg-secondary border-0">Lương:
+                        ${changeMoney(result[0].salary)}
+                    </li>
+                </ul>
+            </div>
+        </div>`
+            $('.detail-salary').addClass('border-end');
+            $('.detail-salary').html(str);
+        }
+    })
 
-    //         }
-    //     })
-    // })
-    // $('#pastHtml').click(() => {
-    //     $('#tesst').html("<%=year.year%>");
-    // })
-
-
-
-
-
-    // $('#timeRecordSearch')
-    // $.ajax({
-    //     url: url,
-    //     dataType: "json",
-    //     type: "Post",
-    //     async: true,
-    //     data: { },
-    //     success: function (data) {
-
-    //     },
 })
+
+function changeMoney(money) {
+    let x = '';
+    if (typeof(money) == 'number') {
+        money = money.toString();
+        let mod = parseInt(money.length) % 3; // 1
+        let sub = parseInt(money.length) / 3; // 2
+
+        if (money.length > 3) {
+            if (mod > 0) {
+                x += money.substr(0, mod);
+                for (let i = 1; i <= sub; i++) {
+                    x += '.' + money.substr(mod, 3)
+                    mod += 3;
+                }
+                x += ' VNĐ'
+            } else {
+                for (let i = 1; i <= sub; i++) {
+                    if (i == 1) {
+                        x += money.substr(mod, mod + 3)
+                        mod += 3;
+                    } else {
+                        x += '.' + money.substr(mod, 3)
+                        mod += 2;
+                    }
+
+                }
+                x += ' VNĐ'
+            }
+        } else {
+            x += money + ' VNĐ';
+        }
+    } else {
+        x += money;
+    }
+    return x.trim();
+}
 
 function parseHour(hour, type) {
     let result = "";

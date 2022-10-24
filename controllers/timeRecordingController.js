@@ -1,5 +1,4 @@
 const TimeRecording = require("../models/timeRecordingModel");
-const User = require("../models/userModel");
 const moment = require("moment");
 
 //Man hinh cham cong
@@ -7,6 +6,45 @@ exports.getTimeRecording = (req, res, next) => {
     TimeRecording.findById(req.user.timeRecordingId)
         .then((t) => {
             let item = {};
+            //Xu ly chưa endTime khi sang ngày làm việc mới... Time gáng là 1h
+            if (t.isWorking) {
+                const prevTime =
+                    t.timeRecording[parseInt(t.previousTime.timeRecording)].yearItems[
+                        parseInt(t.previousTime.yearItems)
+                    ].monthItems[parseInt(t.previousTime.monthItems)].times[
+                        parseInt(t.previousTime.times)
+                    ].startTime;
+                if (
+                    moment(prevTime).format("YYYY-MM-DD") !==
+                    moment().format("YYYY-MM-DD")
+                ) {
+                    t.isWorking = false;
+
+                    t.timeRecording[parseInt(t.previousTime.timeRecording)].yearItems[
+                        parseInt(t.previousTime.yearItems)
+                    ].monthItems[parseInt(t.previousTime.monthItems)].times[
+                        parseInt(t.previousTime.times)
+                    ].isLoading = false;
+
+                    let a = moment(prevTime);
+                    let b = moment(a).add(1, "hours");
+
+                    t.timeRecording[parseInt(t.previousTime.timeRecording)].yearItems[
+                        parseInt(t.previousTime.yearItems)
+                    ].monthItems[parseInt(t.previousTime.monthItems)].times[
+                        parseInt(t.previousTime.times)
+                    ].endTime = a.format();
+
+                    t.timeRecording[parseInt(t.previousTime.timeRecording)].yearItems[
+                        parseInt(t.previousTime.yearItems)
+                    ].monthItems[parseInt(t.previousTime.monthItems)].times[
+                        parseInt(t.previousTime.times)
+                    ].workHours = b.diff(a, "minutes");
+                    t.previousTime = {};
+
+                    return t.save();
+                }
+            }
             if (t.timeRecording.length === 0) {
                 // Trường hợp first index //
                 item.year = parseInt(moment().format("YYYY"));
@@ -82,29 +120,29 @@ exports.getTimeRecording = (req, res, next) => {
                 }
             }
         })
-        .then((t) => {
+
+    .then((t) => {
             TimeRecording.findById(req.user.timeRecordingId).then((t) => {
-                let startTime = "";
+                let startTime = ""; // Nếu đã bắt đầu thì lưu thời gian bắt đầu
                 const indexYears = t.timeRecording.findIndex((x) => {
-                    return x.year === parseInt(moment().format("YYYY"));
+                    return x.year === parseInt(moment().format("YYYY")); //index năm hiện tại
                 });
                 const indexMonth = t.timeRecording[indexYears].yearItems.findIndex(
                     (y) => {
-                        return y.month === parseInt(moment().format("MM"));
+                        return y.month === parseInt(moment().format("MM")); // index tháng hiện tại
                     }
                 );
                 const indexDay = t.timeRecording[indexYears].yearItems[
                     indexMonth
                 ].monthItems.findIndex((z) => {
-                    return z.day === parseInt(moment().format("DD"));
+                    return z.day === parseInt(moment().format("DD")); //index ngày hiện tại
                 });
 
-                //findIndex isLoading==true
                 const startTimeIndex = t.timeRecording[indexYears].yearItems[
                     indexMonth
                 ].monthItems[indexDay].times.findIndex((r) => {
                     return r.isLoading === true;
-                });
+                }); // index của phiên đang làm việc
 
                 if (startTimeIndex >= 0) {
                     startTime = `Bắt đầu lúc: ${moment(
@@ -128,8 +166,9 @@ exports.getTimeRecording = (req, res, next) => {
                     }),
                     startTime: startTime,
                     parseHour: parseHour,
-                    title: 'Chấm công',
-                    isActive: 1
+                    title: "Chấm công",
+                    name: req.user.name,
+                    isActive: 1,
                 });
             });
         })
@@ -139,22 +178,27 @@ exports.getTimeRecording = (req, res, next) => {
 //Form bat dau cham cong
 exports.getStartTime = (req, res, next) => {
     console.log(req.user.name);
-    res.render("time_recording/start-time", { name: req.user.name, title: 'Nơi làm việc' });
+    res.render("time_recording/start-time", {
+        name: req.user.name,
+        title: "Nơi làm việc",
+    });
 };
 
 exports.postStartTime = (req, res, next) => {
     const id = req.user.timeRecordingId;
     const workPlace = req.body.workplace;
-
+    let address = {}; // biến lưu thông tin index arr các cấp trong lúc bắt đầu một phiên làm việc
     TimeRecording.findById(id)
         .then((t) => {
             let item = {};
             const indexYears = t.timeRecording.findIndex((x) => {
                 return x.year === parseInt(moment().format("YYYY"));
             });
-            const indexMonth = t.timeRecording[indexYears].yearItems.findIndex((y) => {
-                return y.month === parseInt(moment().format("MM"));
-            });
+            const indexMonth = t.timeRecording[indexYears].yearItems.findIndex(
+                (y) => {
+                    return y.month === parseInt(moment().format("MM"));
+                }
+            );
             const indexDay = t.timeRecording[indexYears].yearItems[
                 indexMonth
             ].monthItems.findIndex((z) => {
@@ -174,13 +218,15 @@ exports.postStartTime = (req, res, next) => {
             t.timeRecording[indexYears].yearItems[indexMonth].monthItems[
                 indexDay
             ].times = times;
-            // }
+            address.timeRecording = indexYears;
+            address.yearItems = indexMonth;
+            address.monthItems = indexDay;
+            address.times = times.length - 1;
             t.isWorking = !t.isWorking;
+            t.previousTime = address;
             return t.save();
-            // })
-            //
         })
-        .then((result) => {
+        .then(() => {
             return res.redirect("/time-recording");
         })
         .catch((err) => console.log(err));
@@ -226,6 +272,7 @@ exports.postEndTime = (req, res, next) => {
                 "minutes"
             );
             t.isWorking = !t.isWorking;
+            t.previousTime = {};
             return t.save();
         })
         .then((resultSave) => {
@@ -238,7 +285,7 @@ exports.getAnnualLeave = (req, res, next) => {
     TimeRecording.findById(req.user.timeRecordingId)
         .then((t) => {
             let totalAnnual = 0; //Tong time nghi
-            let remainingAnnual = req.user.annualLeave;
+            let remainingAnnual = req.user.annualLeave; //Số ngày nghỉ còn lại
             //In Year
             const indexYears = t.timeRecording.findIndex((x) => {
                 return x.year === parseInt(moment().format("YYYY"));
@@ -246,10 +293,9 @@ exports.getAnnualLeave = (req, res, next) => {
             // Tong time nghi
             t.timeRecording[indexYears].yearItems.forEach((x) => {
                 x.regAnnualleave.dayOff.forEach((i) => {
-                    totalAnnual += i.numOfHours;
+                    totalAnnual += i.numOfHours; // Thời gian nghỉ theo giờ
                 });
             });
-            //  console.log(t.timeRecording[indexYears].yearItems)
 
             res.render("time_recording/annualLeave", {
                 moment: moment,
@@ -257,20 +303,21 @@ exports.getAnnualLeave = (req, res, next) => {
                 totalAnnual: totalAnnual,
                 remainingAnnual: remainingAnnual,
                 parseHour: parseHour,
-                title: 'Đăng ký nghỉ phép',
-                isActive: 2
+                title: "Đăng ký nghỉ phép",
+                name: req.user.name,
+                isActive: 2,
             });
         })
         .catch((err) => console.log(err));
 };
 exports.postAnnualLeave = (req, res, next) => {
-    let currentnumDay = req.user.annualLeave;
+    let currentnumDay = req.user.annualLeave; // Số ngày nghỉ hiện tại
     const id = req.body.txt_id_annual;
     const start = moment(req.body.startDate).format("YYYY-MM-DD"); //Tu ngay
     const end = moment(req.body.endDate).format("YYYY-MM-DD"); //Den ngay
     const hour = parseInt(req.body.numhours); //So gio
     let totalRes = 0; //Tong so gio dang ky nghi
-    let totalOldRes = 0;
+    let totalOldRes = 0; //Tong so gio nghi đã đăng ký... phục vụ cho cập nhật
     TimeRecording.findById(req.user.timeRecordingId)
         .then((t) => {
             let item = {};
@@ -349,7 +396,7 @@ exports.postAnnualLeave = (req, res, next) => {
                         }
                     );
 
-                    if (!id) {
+                    if (!id) { // Nếu k có id => tao moi
                         const checkBetween = t.timeRecording[indexYears].yearItems[
                             indexMonth
                         ].regAnnualleave.dayOff.findIndex((item) => {
@@ -362,6 +409,7 @@ exports.postAnnualLeave = (req, res, next) => {
                                 end === item.startDay ||
                                 end === item.endDay
                             );
+                            //Check thời gian có trùng lắp với khoảng time đã đăng ký hay chưa??
                         });
                         if (checkBetween >= 0) {
                             throw new Error(
@@ -402,21 +450,17 @@ exports.postAnnualLeave = (req, res, next) => {
                             }
                         }
                     } else {
-                        // -------------------------------------------------------------------------------------------------------------------
-
                         let arr = JSON.parse(
                             JSON.stringify([
                                 ...t.timeRecording[indexYears].yearItems[indexMonth]
                                 .regAnnualleave.dayOff,
                             ])
                         );
-                        let indexOld = arr.findIndex(
-                            (a) => (a._id = "634fcfcb470f4935c0fcec1c")
-                        );
+                        let indexOld = arr.findIndex((a) => a._id == id);
                         totalOldRes = arr[indexOld].numOfHours; // Ngay nghi cu
 
                         arr.splice(
-                            arr.findIndex((a) => (a._id = "634fcfcb470f4935c0fcec1c")),
+                            arr.findIndex((a) => a._id == id),
                             1
                         );
 
@@ -445,7 +489,7 @@ exports.postAnnualLeave = (req, res, next) => {
                                     totalRes = 8;
                                 }
                             }
-                            if (currentnumDay >= totalRes) {
+                            if (currentnumDay + totalOldRes >= totalRes) {
                                 //id
                                 const dayOff = {
                                     startDay: start,
@@ -469,63 +513,73 @@ exports.postAnnualLeave = (req, res, next) => {
                 })
 
             .then((result) => {
-                    currentnumDay = currentnumDay + totalOldRes - totalRes;
+                    currentnumDay = currentnumDay + totalOldRes - totalRes; //Cập nhật lại ngày nghỉ
                     return req.user.updateAnnual(currentnumDay);
                 })
                 .then(() => {
                     return res.redirect("/annualLeave");
+                }).catch((err) => {
+                    return res.render("err", { // form bắt lỗi do trùng ngày nghỉ hoặc hết ngày nghỉ
+                        title: "Đăng ký nghỉ",
+                        message: err.message,
+                        name: req.user.name,
+                        backUrl: "/annualLeave",
+                    });
                 });
         })
         .catch((err) => {
-            return res.render("err", {
+            return res.render("err", { // form bắt lỗi do trùng ngày nghỉ hoặc hết ngày nghỉ
                 title: "Đăng ký nghỉ",
                 message: err.message,
+                name: req.user.name,
                 backUrl: "/annualLeave",
             });
         });
 };
 
+//Xoa ngay nghi
 exports.postDeleteAnnual = (req, res, next) => {
     const id = req.body.remove_annual;
     let numOfhour = 0;
     TimeRecording.findById(req.user.timeRecordingId)
-        .then(t => {
-            console.log(typeof(moment().format('YYYY')))
+        .then((t) => {
             t.timeRecording.forEach((year, i) => {
                 year.yearItems.forEach((month, j) => {
-                    let indexItem = month.regAnnualleave.dayOff.findIndex(item => item._id == id)
+                    let indexItem = month.regAnnualleave.dayOff.findIndex(
+                        (item) => item._id == id
+                    ); //index ngày nghỉ
                     if (indexItem >= 0) {
-                        numOfhour = month.regAnnualleave.dayOff[indexItem].numOfHours;
-                        month.regAnnualleave.dayOff.splice(indexItem, 1);
+                        numOfhour = month.regAnnualleave.dayOff[indexItem].numOfHours; // lấy giờ nghỉ củ để cập nhật
+                        month.regAnnualleave.dayOff.splice(indexItem, 1); //xóa khỏi mảng
                     }
                     if (month.regAnnualleave.dayOff.length === 0) {
-                        if (year.year === parseInt(moment().format('YYYY')) && month.month > parseInt(moment().format('MM'))) {
+                        if (
+                            year.year === parseInt(moment().format("YYYY")) &&
+                            month.month > parseInt(moment().format("MM")) // kiểm tra xem xóa có hợp lệ 
+                        ) {
                             year.yearItems.splice(j, 1);
                         }
                     }
-                })
-            })
+                });
+            });
             return t.save();
         })
-        .then(t => {
-            console.log('Ngay nghi ban dau: ', req.user.annualLeave)
-            console.log('Ngay nghi tru ra: ', numOfhour)
-            return req.user.updateAnnual(req.user.annualLeave + numOfhour)
+        .then((t) => {
+            return req.user.updateAnnual(req.user.annualLeave + numOfhour); // cập nhật lại ngày nghỉ
         })
         .then(() => {
-            console.log('Ngay nghi cuoi cung: ', req.user.annualLeave)
             return res.redirect("/annualLeave");
         })
-        .catch(err => console.log(err))
+        .catch((err) => console.log(err));
 };
 //Func tách từ ngày đến ngày thành các ngày chi tiết
 function getRangeOfDates(start, end, key, arr = [start.startOf(key)]) {
-    // if (start.isAfter(end)) throw new Error('start must precede end')
     const next = moment(start).add(1, key).startOf(key);
     if (next.isAfter(end, key)) return arr;
     return getRangeOfDates(next, end, key, arr.concat(next));
 }
 
+//Func doi phut thành giờ || giờ thành ngày
 function parseHour(hour, type) {
     let result = "";
     //minutes to hour

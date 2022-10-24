@@ -6,36 +6,37 @@
                 <div class="row min-vh-100 bg-secondary rounded align-items-start justify-content-center mx-0">
 
                     <!-- Đăng ký nghỉ -->
-                    <form action="/annualLeave" method="POST">
-                        <div class="col-sm-6 col-xl-12 p-4">
-                            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                                <div class="ms-3">
-                                    <label for="annualLeave" class="form-label">Số giờ</label>
-                                    <input type="number" min="0" max="8" class="form-control" id="annualLeave" value="0" name="numhours">
-                                </div>
-                                <div class="ms-3">
-                                    <label for="startDate" class="form-label">Từ ngày</label>
-                                    <input type="date" value="<%=moment().format('YYYY-MM-DD')%>" class="form-control" id="startDate" name="startDate">
-                                </div>
-                                <div class="ms-3">
-                                    <label for="endDate" class="form-label">Đến ngày</label>
-                                    <input type="date" class="form-control" value="<%=moment().format('YYYY-MM-DD')%>" id="endDate" name="endDate">
-                                </div>
-                                <div class="ms-3">
-                                    <input type="hidden" value="" name="txt_id_annual" id="txt_id_annual">
-                                    <button class="btn btn-success" id="annual-submit" type="submit"> Đăng ký </button>
-                                    <button class="btn btn-primary" id="annual-clear" type="button"> Hủy </button>
-                                </div>
 
+                    <div class="col-sm-12 col-xl-12 p-4">
+                        <h4>Đăng ký nghỉ</h4>
+                        <form action="/annualLeave" method="POST">
+                            <div class="ms-3">
+                                <label for="annualLeave" class="form-label">Số giờ</label>
+                                <input type="number" min="0" max="8" class="form-control" id="annualLeave" value="0" name="numhours">
                             </div>
-                            <div class="p-6">
+                            <div class="ms-3 ">
+                                <label for="startDate" class="form-label">Từ ngày</label>
+                                <input type="date" value="<%=moment().format('YYYY-MM-DD')%>" class="form-control" id="startDate" name="startDate">
+                            </div>
+                            <div class="ms-3">
+                                <label for="endDate" class="form-label">Đến ngày</label>
+                                <input type="date" class="form-control" value="<%=moment().format('YYYY-MM-DD')%>" id="endDate" name="endDate">
+                            </div>
+                            <div class="ms-3 my-3">
                                 <div class="form-floating">
                                     <textarea class="form-control" placeholder="Leave a comment here" name="cause" id="floatingTextarea" style="height: 100px;"></textarea>
                                     <label for="floatingTextarea">Lý do</label>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                            <div class="ms-3 d-flex justify-content-end">
+                                <input type="hidden" value="" name="txt_id_annual" id="txt_id_annual">
+                                <button class="btn btn-success  mx-3" id="annual-submit" type="submit"> Đăng ký </button>
+                                <button class="btn btn-primary" id="annual-clear" type="button"> Hủy </button>
+                            </div>
+                        </form>
+
+                    </div>
+
 
                     <!-- Table Danh sách điểm danh -->
                     <hr>

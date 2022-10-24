@@ -5,7 +5,7 @@ const moment = require('moment');
 exports.getCovid = (req, res, next) => {
         Covid.findById(req.user.covidId)
             .then(covid => {
-                res.render('covid/covid', { covid: covid, moment: moment, title: 'Thông tin Covid', isActive: 6 });
+                res.render('covid/covid', { covid: covid, moment: moment, title: 'Thông tin Covid', name: req.user.name, isActive: 6 });
             })
             .catch(err => console.log(err));
     }
@@ -85,7 +85,6 @@ exports.postVaccine = (req, res, next) => {
             })
             .catch(err => console.log(err));
     } else {
-
         Covid.updateOne({ _id: req.user.covidId, 'vaccine._id': _id }, {
                 $set: {
                     'vaccine.$.numVac': _numVac,
