@@ -70,7 +70,7 @@ exports.getLookup = (req, res, next) => {
     req.user
         .populate({ path: "timeRecordingId" }) // trả về timeRecording
         .then((user) => {
-            let custom = {...JSON.parse(JSON.stringify(user)) }; // custom thành mảng thay đổi được
+            let custom = { ...JSON.parse(JSON.stringify(user)) }; // custom thành mảng thay đổi được
             custom.timeRecordingId.timeRecording.forEach((year, i) => {
                 //Year
                 let totalAnnualOfYear = 0; //tong so ngay nghi cua nam
@@ -144,7 +144,7 @@ exports.getLookup = (req, res, next) => {
                     month.sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
 
                     //Thay đổi định dạng cho ngày tháng... 1=>01 /// 
-                    let str_yearMonth = `${year.year}-${month.month.toString().length === 1? +"0" + month.month.toString(): month.month.toString()}`;
+                    let str_yearMonth = `${year.year}-${month.month.toString().length === 1 ? +"0" + month.month.toString() : month.month.toString()}`;
 
                     const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang 2=>28 ngày
                     const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat của tháng
@@ -154,14 +154,12 @@ exports.getLookup = (req, res, next) => {
                     //Thoi gian tang ca cua thang
                     let upTimeInMonth =
                         sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 >= 0 ?
-                        sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 :
-                        0;
+                            sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 : 0;
                     month.upTimeInMonth = upTimeInMonth;
                     //Thoi gian thieu cua thang
                     let missTimeInMonth =
                         (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth >= 0 ?
-                        (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth :
-                        0;
+                            (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth : 0;
                     month.missTimeInMonth = missTimeInMonth;
                     //Lương tháng
                     let salary = req.user.salaryScale * 3000000 + ((upTimeInMonth / 60) - (missTimeInMonth / 60)) * 200000;
@@ -199,7 +197,7 @@ exports.getLookupAjax = (req, res, next) => {
     req.user
         .populate({ path: "timeRecordingId" })
         .then((user) => {
-            let custom = {...JSON.parse(JSON.stringify(user)) };
+            let custom = { ...JSON.parse(JSON.stringify(user)) };
             custom.timeRecordingId.timeRecording.forEach((year, i) => {
                 //Year
                 let totalAnnualOfYear = 0;
@@ -274,11 +272,10 @@ exports.getLookupAjax = (req, res, next) => {
                     month.sumOffMonthMain = sumTimeOffTempMain; //tong thoi gian nghi cua thang chua tru
                     month.sumOffMonthSub = sumTimeOffTemp; //Tong time nghi cua thang da tru qua diem danh
                     month.sumTimeInMonth = sumTimeInMonth; //Tong time lam cua thang
-                    let str_yearMonth = `${year.year}-${
-            month.month.toString().length === 1
-              ? +"0" + month.month.toString()
-              : month.month.toString()
-          }`;
+                    let str_yearMonth = `${year.year}-${month.month.toString().length === 1
+                            ? +"0" + month.month.toString()
+                            : month.month.toString()
+                        }`;
                     const numOfMonthTemp = moment(str_yearMonth).daysInMonth(); // so ngay cua thang
                     const weekendOfMonth = numWeekendOfMonth(str_yearMonth); // so ngay thu 7 va chu nhat
 
@@ -287,14 +284,14 @@ exports.getLookupAjax = (req, res, next) => {
                     //Thoi gian tang ca cua thang
                     let upTimeInMonth =
                         sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 >= 0 ?
-                        sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 :
-                        0;
+                            sumTimeInMonth - (numOfMonthTemp - weekendOfMonth) * 8 * 60 :
+                            0;
                     month.upTimeInMonth = upTimeInMonth;
                     //Thoi gian thieu cua thang
                     let missTimeInMonth =
                         (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth >= 0 ?
-                        (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth :
-                        0;
+                            (numOfMonthTemp - weekendOfMonth) * 8 * 60 - sumTimeInMonth :
+                            0;
                     month.missTimeInMonth = missTimeInMonth;
                     //Lương tháng
 
@@ -320,7 +317,7 @@ exports.getLookupAjax = (req, res, next) => {
 };
 
 // Insert data phiên làm việc
-exports.getTest = async(req, res, next) => {
+exports.getTest = async (req, res, next) => {
     const arr = ['15:00', '14:00', '16:00', '16:30', '14:30']; // Random giờ end khác nhau 
     for (let g = 1; g < 10; g++) {
         let monthYear = `2022-0${g}`; // Nối chuổi tháng tăng dần 1=>9
@@ -379,7 +376,7 @@ exports.getTest = async(req, res, next) => {
 
 
 // Insert khung ngày tháng
-exports.getTestSetUp = async(req, res, next) => {
+exports.getTestSetUp = async (req, res, next) => {
     for (let g = 1; g < 10; g++) {
         let monthYear = `2022-0${g}`;
         let firstDayOfMonth = moment(monthYear).startOf("month");
@@ -403,8 +400,8 @@ exports.getTestSetUp = async(req, res, next) => {
                                 monthItems: [{
                                     day: parseInt(firstDayOfMonth.format("DD")),
                                     times: [],
-                                }, ],
-                            }, ];
+                                },],
+                            },];
 
                             let timeRecording = [...t.timeRecording];
                             timeRecording.push(item);
@@ -423,8 +420,8 @@ exports.getTestSetUp = async(req, res, next) => {
                                     monthItems: [{
                                         day: parseInt(firstDayOfMonth.format("DD")),
                                         times: [],
-                                    }, ],
-                                }, ];
+                                    },],
+                                },];
                                 let timeRecording = [...t.timeRecording];
                                 timeRecording.push(item);
                                 t.timeRecording = timeRecording;
@@ -441,7 +438,7 @@ exports.getTestSetUp = async(req, res, next) => {
                                     item.monthItems = [{
                                         day: parseInt(firstDayOfMonth.format("DD")),
                                         times: [],
-                                    }, ];
+                                    },];
                                     let yearItems = [...t.timeRecording[indexYears].yearItems];
                                     yearItems.push(item);
                                     t.timeRecording[indexYears].yearItems = yearItems;
@@ -532,7 +529,7 @@ function parseHour(hour, type) {
 //Func trả về lương theo định dạng tiền VNĐ=> 7.000.000
 function changeMoney(money) {
     let x = '';
-    if (typeof(money) == 'number') {
+    if (typeof (money) == 'number') {
         money = money.toString();
         let mod = parseInt(money.length) % 3; // 1
         let sub = parseInt(money.length) / 3; // 2
